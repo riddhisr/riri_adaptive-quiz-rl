@@ -1,0 +1,103 @@
+{
+  "session_id": "20677d2d-8570-41cc-8774-67fa98494f65",
+  "user_id": "Priti",
+  "start_time": "2025-11-01T13:44:48.330114",
+  "interactions": [
+    {
+      "ts": "2025-11-01T13:45:18.053122",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In HTML, which non-standard tag used to be be used to make elements scroll across the viewport?",
+      "chosen": "<scroll></scroll>",
+      "correct": false,
+      "time_taken": 28.872771978378296,
+      "reward": -1.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:45:25.915377",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "What does AD stand for in relation to Windows Operating Systems? ",
+      "chosen": "Automated Database",
+      "correct": false,
+      "time_taken": 6.7023680210113525,
+      "reward": -1.3351184010505677,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:45:28.179352",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "Moore's law originally stated that the number of transistors on a microprocessor chip would double every...",
+      "chosen": "Four Years",
+      "correct": false,
+      "time_taken": 1.4279868602752686,
+      "reward": -1.0713993430137634,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:45:31.750650",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 2.729055881500244,
+      "reward": 0.8635472059249878,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:45:57.256734",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which internet company began life as an online bookstore called 'Cadabra'?",
+      "chosen": "Amazon",
+      "correct": true,
+      "time_taken": 24.67104411125183,
+      "reward": 0.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:46:27.972673",
+      "q_no": 6,
+      "difficulty": "medium",
+      "question": "The computer OEM manufacturer Clevo, known for its Sager notebook line, is based in which country?",
+      "chosen": "Taiwan",
+      "correct": true,
+      "time_taken": 29.869812965393066,
+      "reward": 0.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:46:30.924368",
+      "q_no": 6,
+      "difficulty": "medium",
+      "question": "The computer OEM manufacturer Clevo, known for its Sager notebook line, is based in which country?",
+      "chosen": "Taiwan",
+      "correct": true,
+      "time_taken": 32.82298278808594,
+      "reward": 0.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-01T13:46:38.996936",
+      "q_no": 6,
+      "difficulty": "medium",
+      "question": "The computer OEM manufacturer Clevo, known for its Sager notebook line, is based in which country?",
+      "chosen": "Taiwan",
+      "correct": true,
+      "time_taken": 40.89444184303284,
+      "reward": 0.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    }
+  ]
+}

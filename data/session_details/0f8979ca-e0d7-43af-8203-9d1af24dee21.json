@@ -1,0 +1,79 @@
+{
+  "session_id": "0f8979ca-e0d7-43af-8203-9d1af24dee21",
+  "user_id": "anon",
+  "start_time": "2025-11-01T14:05:46.051143",
+  "interactions": [
+    {
+      "ts": "2025-11-01T14:05:56.291653",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What are the first 6 digits of the number \"Pi\"?",
+      "chosen": "3.14159",
+      "correct": true,
+      "time_taken": 6.96514892578125,
+      "reward": 0.6517425537109375,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:05:59.756769",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "Which of these numbers is closest to the total number of possible states for an army standard Enigma Machine?",
+      "chosen": "1.58 x 10^22",
+      "correct": false,
+      "time_taken": 2.5324859619140625,
+      "reward": -1.626624298095703,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:06:08.626324",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 7.983644962310791,
+      "reward": 0.6008177518844604,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:06:19.251104",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "The notion of a \"set that contains all sets which do not contain themselves\" is a paradoxical idea attributed to which English philosopher?",
+      "chosen": "Francis Bacon",
+      "correct": false,
+      "time_taken": 9.590981006622314,
+      "reward": -1.9795490503311157,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:06:25.723212",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "What is the alphanumeric representation of the imaginary number?",
+      "chosen": "i",
+      "correct": true,
+      "time_taken": 4.529903888702393,
+      "reward": 0.7735048055648803,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:06:37.296176",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "What is the alphanumeric representation of the imaginary number?",
+      "chosen": "n",
+      "correct": false,
+      "time_taken": 16.10382103919983,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

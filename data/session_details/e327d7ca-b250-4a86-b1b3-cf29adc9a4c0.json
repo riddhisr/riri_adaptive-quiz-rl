@@ -1,0 +1,19 @@
+{
+  "session_id": "e327d7ca-b250-4a86-b1b3-cf29adc9a4c0",
+  "user_id": "practice",
+  "start_time": "2025-11-01T14:51:06.470785",
+  "interactions": [
+    {
+      "ts": "2025-11-01T14:51:06.474275",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In the hexadecimal system, what number comes after 9?",
+      "chosen": "The Number 0",
+      "correct": false,
+      "time_taken": 10.667803049087524,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

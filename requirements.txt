@@ -1,0 +1,10 @@
+streamlit
+requests
+numpy
+scikit-learn
+torch
+matplotlib
+pandas
+tqdm
+html5lib
+fpdf

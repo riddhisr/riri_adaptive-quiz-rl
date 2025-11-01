@@ -1,0 +1,67 @@
+{
+  "session_id": "bb694996-e7e4-42c9-ad15-41e7d7cf84a7",
+  "user_id": "qcard_player",
+  "start_time": "2025-11-01T14:08:47.500809",
+  "interactions": [
+    {
+      "ts": "2025-11-01T14:08:47.503368",
+      "q_no": 1,
+      "difficulty": "mixed",
+      "question": "Q-Card",
+      "chosen": "correct",
+      "correct": false,
+      "time_taken": 26.87295389175415,
+      "reward": 1.6500000000000001,
+      "agent_type": "heuristic",
+      "model_name": null
+    },
+    {
+      "ts": "2025-11-01T14:08:47.503947",
+      "q_no": 2,
+      "difficulty": "mixed",
+      "question": "Q-Card",
+      "chosen": "wrong",
+      "correct": false,
+      "time_taken": 0.01,
+      "reward": 0.0,
+      "agent_type": "heuristic",
+      "model_name": null
+    },
+    {
+      "ts": "2025-11-01T14:08:47.504593",
+      "q_no": 4,
+      "difficulty": "mixed",
+      "question": "Q-Card",
+      "chosen": "reveal",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": 0.0,
+      "agent_type": "heuristic",
+      "model_name": null
+    },
+    {
+      "ts": "2025-11-01T14:08:47.505203",
+      "q_no": 5,
+      "difficulty": "mixed",
+      "question": "Q-Card",
+      "chosen": "skip",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": 0.0,
+      "agent_type": "heuristic",
+      "model_name": null
+    },
+    {
+      "ts": "2025-11-01T14:08:47.505802",
+      "q_no": 5,
+      "difficulty": "mixed",
+      "question": "Q-Card",
+      "chosen": "wrong",
+      "correct": false,
+      "time_taken": 3.897407054901123,
+      "reward": 0.0,
+      "agent_type": "heuristic",
+      "model_name": null
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "session_id": "c9f96345-e479-445c-a651-19bb6a364cf9",
+  "user_id": "Ann",
+  "start_time": "2025-11-01T14:50:11.660726",
+  "interactions": [
+    {
+      "ts": "2025-11-01T14:50:19.256796",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "What year did Albrecht D\u00fcrer create the painting \"The Young Hare\"?",
+      "chosen": "1602",
+      "correct": false,
+      "time_taken": 6.652231216430664,
+      "reward": -1.8326115608215332,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:26.558967",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": " What color is produced by mixing black and white?",
+      "chosen": "Grey",
+      "correct": true,
+      "time_taken": 6.44177508354187,
+      "reward": 0.17791124582290652,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:33.750273",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "Which artist painted the late 15th century mural 'The Last Supper'?",
+      "chosen": "Leonardo da Vinci",
+      "correct": true,
+      "time_taken": 6.333096981048584,
+      "reward": 0.1833451509475708,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:40.725174",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": " What color is produced by mixing black and white?",
+      "chosen": "Grey",
+      "correct": true,
+      "time_taken": 6.127028942108154,
+      "reward": 0.19364855289459226,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:45.743582",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which artist\u2019s studio was known as 'The Factory'?",
+      "chosen": "Peter Blake",
+      "correct": false,
+      "time_taken": 4.161640882492065,
+      "reward": -1.2080820441246032,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:48.403874",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which artist\u2019s studio was known as 'The Factory'?",
+      "chosen": "Peter Blake",
+      "correct": false,
+      "time_taken": 6.8226659297943115,
+      "reward": -1.3411332964897156,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:50.196827",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which artist\u2019s studio was known as 'The Factory'?",
+      "chosen": "Peter Blake",
+      "correct": false,
+      "time_taken": 8.615118741989136,
+      "reward": -1.4307559370994567,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T14:50:52.109177",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which artist\u2019s studio was known as 'The Factory'?",
+      "chosen": "David Hockney",
+      "correct": false,
+      "time_taken": 10.52808403968811,
+      "reward": -1.5,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

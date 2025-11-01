@@ -1,0 +1,67 @@
+{
+  "session_id": "445f1680-0b4d-4a9f-98ac-4441d9409d90",
+  "user_id": "You",
+  "start_time": "2025-11-01T15:00:30.372731",
+  "interactions": [
+    {
+      "ts": "2025-11-01T15:00:38.379644",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What part of the brain takes its name from the Greek for seahorse?",
+      "chosen": "Thalamus",
+      "correct": false,
+      "time_taken": 6.779750108718872,
+      "reward": -1.3389875054359437,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T15:00:41.496982",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "Which of the following blood vessels carries deoxygenated blood?",
+      "chosen": "Pulmonary Vein",
+      "correct": false,
+      "time_taken": 2.239332675933838,
+      "reward": -0.6119666337966919,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T15:00:44.674257",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "22",
+      "correct": false,
+      "time_taken": 2.3043200969696045,
+      "reward": -1.6152160048484803,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T15:00:47.774789",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "Which of the following is a major muscle of the back?",
+      "chosen": "Trapezius",
+      "correct": true,
+      "time_taken": 2.223017930984497,
+      "reward": 1.388849103450775,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T15:00:51.671353",
+      "q_no": 5,
+      "difficulty": "easy",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 2.998392105102539,
+      "reward": 0.35008039474487307,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

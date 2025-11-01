@@ -1,0 +1,91 @@
+{
+  "session_id": "27ce7880-d546-429f-9d51-b3ab1a965978",
+  "user_id": "Ridz",
+  "start_time": "2025-11-01T13:38:56.491892",
+  "interactions": [
+    {
+      "ts": "2025-11-01T13:39:08.593462",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "Etihad Stadium is the home stadium for which team?",
+      "chosen": "Manchester United",
+      "correct": false,
+      "time_taken": 8.615173101425171,
+      "reward": -1.9307586550712585,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:39:14.289724",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "Who won the 2015 College Football Playoff (CFP) National Championship? ",
+      "chosen": "Wisconsin Badgers",
+      "correct": false,
+      "time_taken": 4.915498971939087,
+      "reward": -1.2457749485969543,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:39:17.562019",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "How many soccer players should be on the field at the same time?",
+      "chosen": "20",
+      "correct": false,
+      "time_taken": 2.497675895690918,
+      "reward": -0.6248837947845459,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:39:21.347278",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 2.659113883972168,
+      "reward": 0.3670443058013916,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:39:23.899725",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "The AHL affiliate team of the Boston Bruins is named what?",
+      "chosen": "Hartford Bruins",
+      "correct": false,
+      "time_taken": 1.7743570804595947,
+      "reward": -1.5887178540229798,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:39:27.542878",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "The AHL affiliate team of the Boston Bruins is named what?",
+      "chosen": "Hartford Bruins",
+      "correct": false,
+      "time_taken": 5.41870903968811,
+      "reward": -1.7709354519844056,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:39:30.832561",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "The AHL affiliate team of the Boston Bruins is named what?",
+      "chosen": "Hartford Bruins",
+      "correct": false,
+      "time_taken": 8.70797610282898,
+      "reward": -1.935398805141449,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

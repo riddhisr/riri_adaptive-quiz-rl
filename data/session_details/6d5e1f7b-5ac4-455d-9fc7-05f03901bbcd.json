@@ -1,0 +1,127 @@
+{
+  "session_id": "6d5e1f7b-5ac4-455d-9fc7-05f03901bbcd",
+  "user_id": "Angel",
+  "start_time": "2025-11-01T13:49:29.758015",
+  "interactions": [
+    {
+      "ts": "2025-11-01T13:49:58.760107",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "Which soccer team won the Copa Am\u00e9rica 2015 Championship ?",
+      "chosen": "Chile",
+      "correct": true,
+      "time_taken": 25.902153253555298,
+      "reward": 0.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:50:57.754273",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "Which male player won the gold medal of table tennis singles in 2016 Olympics Games?",
+      "chosen": "Ma Long (China)",
+      "correct": true,
+      "time_taken": 58.09828209877014,
+      "reward": 1.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:10.636878",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "Who scored the injury time winning goal in the 1999 UEFA Champions League final between Manchester United and Bayern Munich?",
+      "chosen": "Ole Gunnar Solskj\u00e6r",
+      "correct": true,
+      "time_taken": 12.015014886856079,
+      "reward": 1.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:28.535726",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "Who won the UEFA Champions League in 2017?",
+      "chosen": "Real Madrid C.F.",
+      "correct": true,
+      "time_taken": 16.745018243789673,
+      "reward": 0.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:34.835555",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which sport is NOT traditionally played during the Mongolian Naadam festival?",
+      "chosen": "Wrestling",
+      "correct": false,
+      "time_taken": 5.4671478271484375,
+      "reward": -1.2733573913574219,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:41.807150",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which sport is NOT traditionally played during the Mongolian Naadam festival?",
+      "chosen": "Wrestling",
+      "correct": false,
+      "time_taken": 12.437772989273071,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:45.772849",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which sport is NOT traditionally played during the Mongolian Naadam festival?",
+      "chosen": "Archery",
+      "correct": false,
+      "time_taken": 16.40355896949768,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:48.507007",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which sport is NOT traditionally played during the Mongolian Naadam festival?",
+      "chosen": "Horse-Racing",
+      "correct": false,
+      "time_taken": 19.137725114822388,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:51.554254",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which sport is NOT traditionally played during the Mongolian Naadam festival?",
+      "chosen": "American Football",
+      "correct": true,
+      "time_taken": 22.18601107597351,
+      "reward": 0.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T13:51:58.269157",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which sport is NOT traditionally played during the Mongolian Naadam festival?",
+      "chosen": "Archery",
+      "correct": false,
+      "time_taken": 28.900676012039185,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

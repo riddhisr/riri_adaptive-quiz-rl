@@ -1,0 +1,39 @@
+cat > .gitignore <<'GIT'
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Models & large files
+models/
+*.pth
+*.pt
+*.h5
+*.ckpt
+
+# Data (if large)
+data/*.csv
+data/*.parquet
+
+# Logs
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Streamlit cache
+.streamlit/
+
+# Git LFS attributes
+.gitattributes
+GIT
