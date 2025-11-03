@@ -1,0 +1,67 @@
+{
+  "session_id": "18a9c89a-d30e-4ce4-8003-bf851d0b18bb",
+  "user_id": "You",
+  "start_time": "2025-11-01T18:10:07.101281",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:10:12.552723",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What type of function is x\u00b2+2x+1?",
+      "chosen": "Quadratic",
+      "correct": true,
+      "time_taken": 4.649883270263672,
+      "reward": 0.7675058364868164,
+      "agent_type": "heuristic",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:10:33.213863",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "What is the area of a circle with a diameter of 20 inches if \u03c0= 3.1415?",
+      "chosen": "314.15 Inches",
+      "correct": true,
+      "time_taken": 19.89822483062744,
+      "reward": 0.5,
+      "agent_type": "heuristic",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:10:44.509885",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "What is the first Mersenne prime exponent over 1000?",
+      "chosen": "1009",
+      "correct": false,
+      "time_taken": 10.535996913909912,
+      "reward": -1.5,
+      "agent_type": "heuristic",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:11:02.215274",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "In a normal distribution, 95% of the data lies within how many standard deviations of the mean?",
+      "chosen": "4",
+      "correct": false,
+      "time_taken": 16.942559242248535,
+      "reward": -1.5,
+      "agent_type": "heuristic",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:11:06.271369",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "In a normal distribution, 95% of the data lies within how many standard deviations of the mean?",
+      "chosen": "1",
+      "correct": false,
+      "time_taken": 3.28560471534729,
+      "reward": -1.1642802357673645,
+      "agent_type": "heuristic",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

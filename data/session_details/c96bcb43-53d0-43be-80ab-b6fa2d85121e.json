@@ -1,0 +1,31 @@
+{
+  "session_id": "c96bcb43-53d0-43be-80ab-b6fa2d85121e",
+  "user_id": "You",
+  "start_time": "2025-11-01T20:29:27.585621",
+  "interactions": [
+    {
+      "ts": "2025-11-01T20:29:32.730286",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "The metric prefix \"atto-\" makes a measurement how much smaller than the base unit?",
+      "chosen": "One Quadrillionth",
+      "correct": false,
+      "time_taken": 4.192307949066162,
+      "reward": -0.7096153974533081,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:29:35.993532",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "How many degrees make a full circle?",
+      "chosen": "180",
+      "correct": false,
+      "time_taken": 0.9137411117553711,
+      "reward": -0.5456870555877685,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

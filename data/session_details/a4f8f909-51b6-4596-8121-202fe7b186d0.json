@@ -1,0 +1,19 @@
+{
+  "session_id": "a4f8f909-51b6-4596-8121-202fe7b186d0",
+  "user_id": "practice",
+  "start_time": "2025-11-03T08:40:28.043215",
+  "interactions": [
+    {
+      "ts": "2025-11-03T08:40:28.045693",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 0.0,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

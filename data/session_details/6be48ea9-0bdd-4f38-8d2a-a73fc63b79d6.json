@@ -1,0 +1,19 @@
+{
+  "session_id": "6be48ea9-0bdd-4f38-8d2a-a73fc63b79d6",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:47:09.135816",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:47:16.711700",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "Which of the following mathematicians made major contributions to game theory?",
+      "chosen": "Leonhard Euler",
+      "correct": false,
+      "time_taken": 5.211684942245483,
+      "reward": -1.7605842471122741,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

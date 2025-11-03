@@ -1,0 +1,19 @@
+{
+  "session_id": "f47b4c1a-07fb-4b26-a473-e7e934fa2fe7",
+  "user_id": "practice",
+  "start_time": "2025-11-01T18:12:07.758782",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:12:07.761301",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "What type of angle is greater than 90\u00b0?",
+      "chosen": "Obtuse",
+      "correct": true,
+      "time_taken": 5.9224512577056885,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

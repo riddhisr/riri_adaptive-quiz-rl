@@ -1,0 +1,55 @@
+{
+  "session_id": "5bd242ab-b496-4070-b0c9-6702fb1977b5",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:35:39.921848",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:35:48.488258",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "What is the correct order of operations for solving equations?",
+      "chosen": "Parentheses, Exponents, Multiplication, Division, Addition, Subtraction",
+      "correct": true,
+      "time_taken": 6.0763890743255615,
+      "reward": 0.19618054628372195,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:35:55.009841",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "What are the first 6 digits of the number \"Pi\"?",
+      "chosen": "3.14169",
+      "correct": false,
+      "time_taken": 2.5981130599975586,
+      "reward": -1.1299056529998779,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:36:00.641350",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "What are the first 6 digits of the number \"Pi\"?",
+      "chosen": "3.25812",
+      "correct": false,
+      "time_taken": 8.231147050857544,
+      "reward": -1.9115573525428773,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:36:08.012989",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "How many zeros are there in a googol?",
+      "chosen": "1,000",
+      "correct": false,
+      "time_taken": 3.579030990600586,
+      "reward": -1.1789515495300293,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    }
+  ]
+}

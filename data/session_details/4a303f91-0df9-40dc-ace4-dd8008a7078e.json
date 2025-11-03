@@ -1,0 +1,19 @@
+{
+  "session_id": "4a303f91-0df9-40dc-ace4-dd8008a7078e",
+  "user_id": "practice",
+  "start_time": "2025-11-01T18:11:30.341553",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:11:30.342774",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "To the nearest whole number, how many radians are in a whole circle?",
+      "chosen": "4",
+      "correct": false,
+      "time_taken": 3.175840139389038,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "session_id": "2b7e1a2d-d24e-46cb-b587-a1d722a02fc0",
+  "user_id": "You",
+  "start_time": "2025-11-01T18:04:06.907145",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:04:21.026956",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "When was the SS or Schutzstaffel established?",
+      "chosen": "April 4th, 1925",
+      "correct": true,
+      "time_taken": 13.329904079437256,
+      "reward": 1.0,
+      "agent_type": "dqn.pth",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:04:34.823138",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "What was the name of the first permanent English settlement in America?",
+      "chosen": "Jamestown",
+      "correct": true,
+      "time_taken": 13.026748895645142,
+      "reward": 0.5,
+      "agent_type": "dqn.pth",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:04:42.198262",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "The ancient city of Chich\u00e9n Itz\u00e1 was built by which civilization?",
+      "chosen": "Aztecs",
+      "correct": false,
+      "time_taken": 6.601646184921265,
+      "reward": -1.8300823092460632,
+      "agent_type": "dqn.pth",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:05:02.024304",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "The son of which pope supposedly held a lecherous f\u00eate involving 50 courtesans in the papal palace?",
+      "chosen": "Alexander VI",
+      "correct": true,
+      "time_taken": 19.053450107574463,
+      "reward": 1.0,
+      "agent_type": "dqn.pth",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:05:04.558566",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "What event marked the start of World War II?",
+      "chosen": "Invasion of Normandy (1944)",
+      "correct": false,
+      "time_taken": 1.7604429721832275,
+      "reward": -1.0880221486091615,
+      "agent_type": "dqn.pth",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T18:05:08.752394",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "What event marked the start of World War II?",
+      "chosen": "Invasion of Normandy (1944)",
+      "correct": false,
+      "time_taken": 5.954216957092285,
+      "reward": -1.2977108478546142,
+      "agent_type": "dqn.pth",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

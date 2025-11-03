@@ -1,0 +1,55 @@
+{
+  "session_id": "667ede4a-f342-4028-9da8-dde1080f53f1",
+  "user_id": "You",
+  "start_time": "2025-11-01T20:29:52.254153",
+  "interactions": [
+    {
+      "ts": "2025-11-01T20:29:54.551809",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "The Western Lowland Gorilla is scientifically know as?",
+      "chosen": "Gorilla Beringei Beringei",
+      "correct": false,
+      "time_taken": 1.6127228736877441,
+      "reward": -1.5806361436843872,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:30:02.392228",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 3.118389129638672,
+      "reward": 0.8440805435180664,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:30:11.956457",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "Which of these is a stop codon in DNA?",
+      "chosen": "TAA",
+      "correct": true,
+      "time_taken": 0.01,
+      "reward": 1.4995,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:30:22.778289",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "What is the powerhouse of the cell?",
+      "chosen": "Mitochondria",
+      "correct": true,
+      "time_taken": 4.585174083709717,
+      "reward": 0.27074129581451417,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

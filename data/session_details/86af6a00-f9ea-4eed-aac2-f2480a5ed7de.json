@@ -1,0 +1,19 @@
+{
+  "session_id": "86af6a00-f9ea-4eed-aac2-f2480a5ed7de",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:48:55.422037",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:48:55.423894",
+      "q_no": 0,
+      "difficulty": "easy",
+      "question": "What does GHz stand for?",
+      "chosen": "Gigahertz",
+      "correct": true,
+      "time_taken": 0.0,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

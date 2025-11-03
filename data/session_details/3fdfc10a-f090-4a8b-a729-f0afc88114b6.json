@@ -1,0 +1,19 @@
+{
+  "session_id": "3fdfc10a-f090-4a8b-a729-f0afc88114b6",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:39:18.125437",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:39:18.127613",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "Which of these was the name of a bug found in April 2014 in the publicly available OpenSSL cryptography library?",
+      "chosen": "Corrupted Blood",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

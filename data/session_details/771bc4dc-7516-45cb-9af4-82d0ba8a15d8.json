@@ -1,0 +1,19 @@
+{
+  "session_id": "771bc4dc-7516-45cb-9af4-82d0ba8a15d8",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:22:34.119515",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:22:45.107094",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In the complex plane, multiplying a given function by i rotates it anti-clockwise by how many degrees?",
+      "chosen": "270",
+      "correct": false,
+      "time_taken": 6.386753082275391,
+      "reward": -1.3193376541137696,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    }
+  ]
+}

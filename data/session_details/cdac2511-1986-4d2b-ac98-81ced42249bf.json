@@ -1,0 +1,67 @@
+{
+  "session_id": "cdac2511-1986-4d2b-ac98-81ced42249bf",
+  "user_id": "You",
+  "start_time": "2025-11-02T03:51:07.510743",
+  "interactions": [
+    {
+      "ts": "2025-11-02T03:51:21.825728",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In the complex plane, multiplying a given function by i rotates it anti-clockwise by how many degrees?",
+      "chosen": "90",
+      "correct": true,
+      "time_taken": 8.118999719619751,
+      "reward": 0.5940500140190125,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T03:51:33.196321",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "What's the square root of 49?",
+      "chosen": "7",
+      "correct": true,
+      "time_taken": 4.275714874267578,
+      "reward": 0.2862142562866211,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T03:51:37.281148",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "What's the square root of 49?",
+      "chosen": "7",
+      "correct": true,
+      "time_taken": 8.361057043075562,
+      "reward": 0.08194714784622192,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T03:51:43.323018",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "What's the square root of 49?",
+      "chosen": "4",
+      "correct": false,
+      "time_taken": 14.402930974960327,
+      "reward": -2.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T03:51:50.642099",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "Which of the following mathematicians made major contributions to game theory?",
+      "chosen": "John Von Neumann",
+      "correct": true,
+      "time_taken": 3.775261878967285,
+      "reward": 1.3112369060516358,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

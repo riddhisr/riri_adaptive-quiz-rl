@@ -1,0 +1,19 @@
+{
+  "session_id": "3ae2adf7-399b-4fb1-b24b-d96f01fb2aad",
+  "user_id": "practice",
+  "start_time": "2025-11-03T08:40:51.131875",
+  "interactions": [
+    {
+      "ts": "2025-11-03T08:40:51.133656",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "The Electron computer was released in Britain during 1983 for the home computing market, by which company? ",
+      "chosen": "Acorn Computers",
+      "correct": true,
+      "time_taken": 0.0,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

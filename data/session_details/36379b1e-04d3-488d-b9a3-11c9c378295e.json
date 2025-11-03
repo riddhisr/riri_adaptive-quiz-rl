@@ -1,0 +1,31 @@
+{
+  "session_id": "36379b1e-04d3-488d-b9a3-11c9c378295e",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:33:19.957018",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:33:26.099597",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "What is the plane curve proposed by Descartes to challenge Fermat's extremum-finding techniques called?",
+      "chosen": "Elliptic Paraboloid of Descartes",
+      "correct": false,
+      "time_taken": 2.419710159301758,
+      "reward": -1.620985507965088,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:33:30.011875",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "What is the plane curve proposed by Descartes to challenge Fermat's extremum-finding techniques called?",
+      "chosen": "Cartesian Coordinates",
+      "correct": false,
+      "time_taken": 6.331228017807007,
+      "reward": -0.8165614008903503,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    }
+  ]
+}

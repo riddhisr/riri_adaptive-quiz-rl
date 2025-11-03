@@ -1,0 +1,31 @@
+{
+  "session_id": "f5ad6182-a510-4b32-ace0-9a28bc2dff79",
+  "user_id": "Anya",
+  "start_time": "2025-11-02T04:10:09.979467",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:10:12.812390",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "Who is the founder of Palantir?",
+      "chosen": "Jack Dorsey",
+      "correct": false,
+      "time_taken": 1.8085389137268066,
+      "reward": -1.5904269456863402,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:10:16.204443",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "Who is the founder of Palantir?",
+      "chosen": "Jack Dorsey",
+      "correct": false,
+      "time_taken": 5.20064377784729,
+      "reward": -1.7600321888923645,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

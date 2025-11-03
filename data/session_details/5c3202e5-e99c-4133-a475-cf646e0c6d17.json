@@ -1,0 +1,19 @@
+{
+  "session_id": "5c3202e5-e99c-4133-a475-cf646e0c6d17",
+  "user_id": "practice",
+  "start_time": "2025-11-02T04:36:57.890975",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:36:57.893241",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "The name of technology company HP stands for what?",
+      "chosen": "Howard Packmann",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

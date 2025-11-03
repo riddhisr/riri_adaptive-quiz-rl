@@ -1,0 +1,19 @@
+{
+  "session_id": "423110b3-8a99-4ec4-aa02-f9d4908811da",
+  "user_id": "practice",
+  "start_time": "2025-11-01T20:31:23.920322",
+  "interactions": [
+    {
+      "ts": "2025-11-01T20:31:23.921836",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What are the first 6 digits of the number \"Pi\"?",
+      "chosen": "3.14159",
+      "correct": true,
+      "time_taken": 0.01,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

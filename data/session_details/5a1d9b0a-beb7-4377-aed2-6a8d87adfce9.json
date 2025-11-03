@@ -1,0 +1,19 @@
+{
+  "session_id": "5a1d9b0a-beb7-4377-aed2-6a8d87adfce9",
+  "user_id": "practice",
+  "start_time": "2025-11-01T18:12:38.943856",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:12:38.946228",
+      "q_no": 7,
+      "difficulty": "easy",
+      "question": "How many degrees make a full circle?",
+      "chosen": "180",
+      "correct": false,
+      "time_taken": 8.371908903121948,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

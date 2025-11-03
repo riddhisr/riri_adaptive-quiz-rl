@@ -1,0 +1,43 @@
+{
+  "session_id": "40343f05-f52b-4e4b-a39c-189ab2822165",
+  "user_id": "Ananya",
+  "start_time": "2025-11-02T06:21:32.461360",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:22:00.245072",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "What is the world's oldest known piece of fiction?",
+      "chosen": "Epic of Gilgamesh",
+      "correct": true,
+      "time_taken": 22.665029048919678,
+      "reward": 0.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:22:11.294573",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "What is the world's oldest known piece of fiction?",
+      "chosen": "Epic of Gilgamesh",
+      "correct": true,
+      "time_taken": 33.71562480926514,
+      "reward": 1.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:22:14.724715",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "What is the world's oldest known piece of fiction?",
+      "chosen": "Epic of Gilgamesh",
+      "correct": true,
+      "time_taken": 37.14579510688782,
+      "reward": 1.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

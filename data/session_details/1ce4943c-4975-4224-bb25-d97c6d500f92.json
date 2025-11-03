@@ -1,0 +1,19 @@
+{
+  "session_id": "1ce4943c-4975-4224-bb25-d97c6d500f92",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:39:11.487391",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:39:11.489958",
+      "q_no": 0,
+      "difficulty": "hard",
+      "question": "The internet domain .fm is the country-code top-level domain for which Pacific Ocean island nation?",
+      "chosen": "Fiji",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

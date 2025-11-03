@@ -1,0 +1,19 @@
+{
+  "session_id": "9309f994-deda-426d-8634-a633d087a7a7",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:39:25.441351",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:39:25.443493",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "Which data structure does FILO apply to?",
+      "chosen": "Heap",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

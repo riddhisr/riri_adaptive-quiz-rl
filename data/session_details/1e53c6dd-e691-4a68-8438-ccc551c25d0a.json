@@ -1,0 +1,67 @@
+{
+  "session_id": "1e53c6dd-e691-4a68-8438-ccc551c25d0a",
+  "user_id": "Anya",
+  "start_time": "2025-11-02T04:09:05.407139",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:09:19.569218",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "Integration is the reverse of what mathematical operation?",
+      "chosen": "Derivation",
+      "correct": true,
+      "time_taken": 13.20066213607788,
+      "reward": 1.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:09:25.054779",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "How many degrees make a full circle?",
+      "chosen": "360",
+      "correct": true,
+      "time_taken": 3.844749927520752,
+      "reward": 0.3077625036239624,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:09:29.000416",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "How many degrees make a full circle?",
+      "chosen": "90",
+      "correct": false,
+      "time_taken": 7.790300130844116,
+      "reward": -1.8895150065422057,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:09:36.520832",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "What is the derivative of sin(x)",
+      "chosen": "cos(x)",
+      "correct": true,
+      "time_taken": 4.934485912322998,
+      "reward": 0.75327570438385,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:09:43.562166",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "Which of these did mathematician Leonhard Euler NOT develop?",
+      "chosen": "A formula linking vertices, edges and faces on a graph",
+      "correct": false,
+      "time_taken": 5.615701198577881,
+      "reward": -1.7807850599288941,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

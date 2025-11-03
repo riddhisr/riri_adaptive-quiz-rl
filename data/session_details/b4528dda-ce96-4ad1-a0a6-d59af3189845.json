@@ -1,0 +1,67 @@
+{
+  "session_id": "b4528dda-ce96-4ad1-a0a6-d59af3189845",
+  "user_id": "You",
+  "start_time": "2025-11-02T04:56:24.769773",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:56:27.820524",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In the hexadecimal system, what number comes after 9?",
+      "chosen": "The Letter A",
+      "correct": true,
+      "time_taken": 2.2255799770355225,
+      "reward": 0.8887210011482238,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:56:33.171818",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "In the hexadecimal system, what number comes after 9?",
+      "chosen": "The Number 0",
+      "correct": false,
+      "time_taken": 7.577897787094116,
+      "reward": -1.3788948893547057,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:56:40.986047",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "What is the Roman numeral for 500?",
+      "chosen": "C",
+      "correct": false,
+      "time_taken": 4.7028281688690186,
+      "reward": -1.2351414084434509,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:56:43.530003",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "What is the area of a circle with a diameter of 20 inches if \u03c0= 3.1415?",
+      "chosen": "3141.5 Inches",
+      "correct": false,
+      "time_taken": 0.01,
+      "reward": -1.0005,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:56:53.025785",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "What numbers are in the 5th row of Pascal's Triangle?",
+      "chosen": "1 6 15 20 15 6 1",
+      "correct": false,
+      "time_taken": 3.219494104385376,
+      "reward": -1.1609747052192687,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

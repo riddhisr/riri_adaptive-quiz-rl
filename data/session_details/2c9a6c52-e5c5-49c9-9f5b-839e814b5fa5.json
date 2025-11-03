@@ -1,0 +1,67 @@
+{
+  "session_id": "2c9a6c52-e5c5-49c9-9f5b-839e814b5fa5",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:37:24.686507",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:37:30.842160",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "How many degrees make a full circle?",
+      "chosen": "360",
+      "correct": true,
+      "time_taken": 3.5765562057495117,
+      "reward": 0.3211721897125244,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:37:39.831347",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "13",
+      "correct": true,
+      "time_taken": 4.255001068115234,
+      "reward": 0.7872499465942383,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:37:52.950880",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "What is the correct order of operations for solving equations?",
+      "chosen": "Addition, Multiplication, Division, Subtraction, Addition, Parentheses",
+      "correct": false,
+      "time_taken": 8.884719133377075,
+      "reward": -0.9442359566688537,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:38:02.749954",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "What's the square root of 49?",
+      "chosen": "7",
+      "correct": true,
+      "time_taken": 4.858998775482178,
+      "reward": 0.25705006122589114,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:38:12.197688",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "In a normal distribution, 95% of the data lies within how many standard deviations of the mean?",
+      "chosen": "2",
+      "correct": true,
+      "time_taken": 3.2889368534088135,
+      "reward": 0.8355531573295594,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

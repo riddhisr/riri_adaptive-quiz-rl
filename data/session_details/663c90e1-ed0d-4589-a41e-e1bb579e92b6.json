@@ -1,0 +1,67 @@
+{
+  "session_id": "663c90e1-ed0d-4589-a41e-e1bb579e92b6",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:32:38.351822",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:32:47.234034",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "8",
+      "correct": false,
+      "time_taken": 4.729802846908569,
+      "reward": -1.2364901423454284,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:32:54.007764",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "13",
+      "correct": true,
+      "time_taken": 11.505263805389404,
+      "reward": 0.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:32:57.721716",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "8",
+      "correct": false,
+      "time_taken": 15.218447923660278,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:32:59.955024",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "13",
+      "correct": true,
+      "time_taken": 17.45049285888672,
+      "reward": 0.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T06:33:02.028060",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "13",
+      "correct": true,
+      "time_taken": 19.52385377883911,
+      "reward": 1.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

@@ -1,371 +1,12 @@
-# # app/streamlit_app.py
-# """
-# Adaptive QuizRL+ — Clean, user-focused Streamlit app
-# - Quiz: 5-question assessment, difficulty hidden (agent decides)
-# - Q-Card: user chooses difficulty and must answer until correct; difficulty revealed
-# - Dashboard: actionable insights (what to practice, which difficulty/area to focus)
-# - Keeps logging and reporting (reportlab/fpdf) intact in app/reporting.py and app/utils_logging.py
-# """
-
-# import os, sys, time, html, random, json
-# from pathlib import Path
-
-# import numpy as np
-# import pandas as pd
-# import streamlit as st
-# import matplotlib.pyplot as plt
-
-# # ensure repo root on path
-# PROJECT_ROOT = Path(__file__).resolve().parents[1]
-# if str(PROJECT_ROOT) not in sys.path:
-#     sys.path.insert(0, str(PROJECT_ROOT))
-
-# # Local modules
-# from agents.dqn_agent import DQNAgent
-# from env.quiz_env import QuizEnv
-# from utils_logging import start_session, log_interaction, log_transition, CSV_PATH
-# from reporting import generate_session_report
-
-# # constants
-# DATA_DIR = PROJECT_ROOT / "data"
-# os.makedirs(DATA_DIR, exist_ok=True)
-
-# # UI config
-# st.set_page_config(page_title="Adaptive QuizRL+", page_icon="🧠", layout="wide")
-# st.title("Adaptive QuizRL+")
-# st.caption("Short assessment quiz (5 Qs) + practice flashcards + clear insights")
-
-# # Sidebar: minimal navigation
-# page = st.sidebar.selectbox("Go to", ["Quiz (5 Qs)", "Q-Card (Practice)", "Dashboard & Report"])
-# st.sidebar.markdown("Tip: run `python -m experiments.train_dqn` to train the adaptive policy (optional).")
-
-# # Safe question fetcher
-# import requests
-# def get_question_safe(category, difficulty="medium"):
-#     try:
-#         url = f"https://opentdb.com/api.php?amount=1&type=multiple&category={category}&difficulty={difficulty}"
-#         r = requests.get(url, timeout=5)
-#         r.raise_for_status()
-#         d = r.json()
-#         if not d or d.get("response_code",1) != 0 or not d.get("results"):
-#             raise ValueError("No result")
-#         q = d["results"][0]
-#         question = html.unescape(q["question"])
-#         correct = html.unescape(q["correct_answer"])
-#         options = [html.unescape(x) for x in q["incorrect_answers"]] + [correct]
-#         random.shuffle(options)
-#         return question, options, correct
-#     except Exception:
-#         # fallback
-#         return "[Fallback] What is 2 + 2?", ["3","4","5","22"], "4"
-
-# # Map action index to difficulty
-# ACTION_TO_DIFF = {0: "easy", 1: "medium", 2: "hard"}
-
-# # Small helper to reset quiz keys only
-# def reset_assessment_state():
-#     keys = ["session_meta","topic","topic_name","agent","q_no","score","start_time","state","last_action","current_question","max_q","agent_loaded"]
-#     for k in keys:
-#         if k in st.session_state:
-#             del st.session_state[k]
-
-# # ---------------------------
-# # QUIZ: 5-question assessment (difficulty hidden)
-# # ---------------------------
-# if page == "Quiz (5 Qs)":
-#     st.header("Assessment — 5 Questions")
-#     st.write("This short 5-question assessment adapts to your performance. Difficulty is chosen by the system to estimate your level.")
-#     # Setup (very minimal)
-#     with st.form("quiz_start"):
-#         cols = st.columns([2,2,2])
-#         topics_map = {"General Knowledge":9, "Science & Nature":17, "Computers":18, "Mathematics":19, "Sports":21, "Geography":22, "History":23, "Art":25}
-#         topic = cols[0].selectbox("Topic", list(topics_map.keys()), index=3)  # default Mathematics (user asked math earlier)
-#         username = cols[1].text_input("Your name (optional)", value="You")
-#         # max_q fixed to 5 per request
-#         cols[2].markdown("Questions per session: **5**")
-#         start = st.form_submit_button("Start Assessment")
-#     if start:
-#         reset_assessment_state()
-#         st.session_state.session_meta = start_session(user_id=username or "anon")
-#         st.session_state.topic = topics_map[topic]
-#         st.session_state.topic_name = topic
-#         st.session_state.max_q = 5  # fixed
-#         # agent (DQN) only. If no trained model available, we still use DQNAgent object (untrained)
-#         agent = DQNAgent()
-#         model_path = PROJECT_ROOT / "models" / "dqn.pth"
-#         agent_loaded = False
-#         if model_path.exists():
-#             try:
-#                 agent.load(str(model_path))
-#                 agent_loaded = True
-#                 st.success("Adaptive policy loaded.")
-#             except Exception:
-#                 st.warning("Could not load adaptive policy; running with default policy.")
-#         else:
-#             st.info("No trained adaptive policy found; using default policy (not trained).")
-#         st.session_state.agent = agent
-#         st.session_state.agent_loaded = agent_loaded
-#         # runtime
-#         st.session_state.q_no = 1
-#         st.session_state.score = 0
-#         st.session_state.start_time = None
-#         # initial state: last_result=0,time_norm=0.5,q_no_norm=0,diff_index=2
-#         st.session_state.state = np.array([0.0, 0.5, 0.0, 2.0], dtype=np.float32)
-#         # agent picks initial action/difficulty
-#         try:
-#             a = st.session_state.agent.select(st.session_state.state)
-#         except Exception:
-#             a = random.choice([0,1,2])
-#         st.session_state.last_action = int(a)
-#         diff = ACTION_TO_DIFF.get(a, "medium")
-#         st.session_state.current_question = get_question_safe(st.session_state.topic, diff)
-#         st.rerun()
-
-#     # If session active, present question
-#     if "session_meta" in st.session_state:
-#         st.subheader(f"{st.session_state.topic_name} — Question {st.session_state.q_no}/5")
-#         # For professional UX, do not display difficulty
-#         q, opts, correct = st.session_state.current_question
-#         st.write(q)
-#         if st.session_state.start_time is None:
-#             st.session_state.start_time = time.time()
-#         ans = st.radio("Select an answer:", opts, key=f"assess_ans_{st.session_state.q_no}")
-#         # Submit
-#         if st.button("Submit Answer"):
-#             time_taken = max(0.01, time.time() - st.session_state.start_time)
-#             is_correct = (ans == correct)
-#             if is_correct:
-#                 st.success("Correct ✅")
-#                 st.session_state.score += 1
-#             else:
-#                 st.error(f"Incorrect — the correct answer will appear in your detailed report.")
-#             # compute reward (same as env's shaping)
-#             a = st.session_state.last_action
-#             base = 1.0 if is_correct else -1.0
-#             diff_factor = {0:0.5,1:1.0,2:1.5}[a]
-#             time_pen = min(time_taken/10.0, 1.0)
-#             reward = base * diff_factor - 0.5 * time_pen
-#             # Log interaction (difficulty hidden in UI but stored)
-#             log_interaction(st.session_state.session_meta, st.session_state.q_no, ACTION_TO_DIFF.get(a,"medium"), q, ans, int(is_correct), time_taken, reward, agent_type="Adaptive", model_name="dqn.pth" if st.session_state.agent_loaded else "")
-#             # store transition for retraining if agent supports store
-#             s = st.session_state.state
-#             ns = np.array([1.0 if is_correct else 0.0, min(time_taken/10.0,1.0), st.session_state.q_no/st.session_state.max_q, float(a+1)], dtype=np.float32)
-#             done = (st.session_state.q_no >= st.session_state.max_q)
-#             try:
-#                 if hasattr(st.session_state.agent, "store"):
-#                     st.session_state.agent.store(s, a, reward, ns, done)
-#                     log_transition(s,a,reward,ns,done, st.session_state.session_meta["session_id"])
-#             except Exception:
-#                 pass
-#             try:
-#                 if hasattr(st.session_state.agent, "learn"):
-#                     st.session_state.agent.learn()
-#             except Exception:
-#                 pass
-#             # update and move to next or finish
-#             st.session_state.state = ns
-#             if done:
-#                 # finished assessment: show high level result + link to Dashboard
-#                 st.success(f"Assessment complete — Score: {st.session_state.score}/5")
-#                 st.info("Your detailed per-question feedback and personalized recommendations are available in the Dashboard.")
-#                 st.rerun()
-#             else:
-#                 st.session_state.q_no += 1
-#                 # agent picks next action
-#                 try:
-#                     na = st.session_state.agent.select(st.session_state.state)
-#                 except Exception:
-#                     na = random.choice([0,1,2])
-#                 st.session_state.last_action = int(na)
-#                 next_diff = ACTION_TO_DIFF.get(na, "medium")
-#                 st.session_state.current_question = get_question_safe(st.session_state.topic, next_diff)
-#                 st.session_state.start_time = None
-#                 st.rerun()
-
-# # ---------------------------
-# # Q-CARD (Practice) — user chooses difficulty, reveal it, repeat until correct
-# # ---------------------------
-# elif page == "Q-Card (Practice)":
-#     st.header("Q-Card — Practice Mode")
-#     st.write("Choose difficulty, see the level, and practice until you get it right (question repeats until correct).")
-#     # choose difficulty
-#     diff_choice = st.selectbox("Choose difficulty", ["easy", "medium", "hard"], index=1)
-#     # choose topic
-#     topics_map = {"General Knowledge":9, "Science & Nature":17, "Computers":18, "Mathematics":19, "Sports":21, "Geography":22, "History":23, "Art":25}
-#     topic_choice = st.selectbox("Topic", list(topics_map.keys()), index=3)
-#     st.write(f"Difficulty selected: **{diff_choice.title()}** (this will be shown each card)")
-
-#     # initialize practice session
-#     if "qcard_state" not in st.session_state:
-#         st.session_state.qcard_state = {"q_no":1, "score":0, "streak":0}
-#     s = st.session_state.qcard_state
-
-#     # fetch card (or reuse until correct)
-#     if "qcard_current" not in st.session_state or st.session_state.get("qcard_current", {}).get("answered_correctly", False):
-#         q, opts, correct = get_question_safe(topics_map[topic_choice], diff_choice)
-#         st.session_state.qcard_current = {"q": q, "opts": opts, "correct": correct, "answered_correctly": False, "start_time": time.time()}
-
-#     cur = st.session_state.qcard_current
-#     st.subheader(f"Card #{s['q_no']}")
-#     st.write(f"Difficulty: **{diff_choice.title()}**")
-#     st.write(cur["q"])
-#     ans = st.radio("Choose an answer:", cur["opts"], key=f"qcard_ans_{s['q_no']}")
-#     if st.button("Submit Answer"):
-#         taken = max(0.01, time.time() - cur["start_time"])
-#         if ans == cur["correct"]:
-#             st.success("Correct — well done!")
-#             s["score"] += 1
-#             s["streak"] += 1
-#             cur["answered_correctly"] = True
-#             # log practice interaction (topic stored too)
-#             log_interaction(start_session(user_id="practice"), s["q_no"], diff_choice, cur["q"], ans, True, taken, 1.0, agent_type="Practice")
-#             # increment question number and prepare next card
-#             s["q_no"] += 1
-#             st.session_state.qcard_current = {"q": None, "opts": None, "correct": None, "answered_correctly": False}
-#             st.experimental_rerun = getattr(st, "experimental_rerun", None)  # harmless
-#             st.rerun()
-#         else:
-#             st.error("Incorrect — try again. This same question will repeat until you answer correctly.")
-#             s["streak"] = 0
-#             # log wrong attempt (reward negative)
-#             log_interaction(start_session(user_id="practice"), s["q_no"], diff_choice, cur["q"], ans, False, taken, -0.5, agent_type="Practice")
-#             # reset start_time so timer restarts
-#             st.session_state.qcard_current["start_time"] = time.time()
-
-#     st.markdown("---")
-#     st.write(f"Practice Score: **{s['score']}**  •  Current streak: **{s['streak']}**")
-
-# # ---------------------------
-# # DASHBOARD & REPORT (actionable insights)
-# # ---------------------------
-# elif page == "Dashboard & Report":
-#     st.header("Dashboard — Performance Insights")
-#     if not os.path.exists(CSV_PATH):
-#         st.info("No session logs available yet. Complete an assessment (Quiz) to generate data.")
-#     else:
-#         df = pd.read_csv(CSV_PATH, parse_dates=["ts"])
-#         # Preprocess: ensure difficulty normalized
-#         df["difficulty"] = df["difficulty"].astype(str)
-#         # Overall KPIs
-#         sessions = df["session_id"].nunique()
-#         total_qs = len(df)
-#         overall_acc = df["correct"].mean()
-#         avg_time = df["time_taken"].mean()
-#         col1, col2, col3, col4 = st.columns(4)
-#         col1.metric("Assessment sessions", sessions)
-#         col2.metric("Overall accuracy", f"{overall_acc*100:.2f}%")
-#         col3.metric("Avg time / question (s)", f"{avg_time:.2f}")
-#         col4.metric("Questions logged", total_qs)
-
-#         st.markdown("### Accuracy by difficulty")
-#         acc_by_diff = df.groupby("difficulty")["correct"].mean().reindex(["easy","medium","hard"]).fillna(0)
-#         fig, ax = plt.subplots(figsize=(6,3))
-#         ax.bar(acc_by_diff.index.str.title(), acc_by_diff.values*100)
-#         ax.set_ylabel("Accuracy (%)")
-#         for i,v in enumerate(acc_by_diff.values*100):
-#             ax.text(i, v+1, f"{v:.1f}%", ha="center")
-#         st.pyplot(fig)
-
-#         st.markdown("### Avg reward by difficulty (which levels helped/hurt you)")
-#         reward_by_diff = df.groupby("difficulty")["reward"].mean().reindex(["easy","medium","hard"]).fillna(0)
-#         fig2, ax2 = plt.subplots(figsize=(6,3))
-#         ax2.bar(reward_by_diff.index.str.title(), reward_by_diff.values)
-#         ax2.axhline(0, color="black", linewidth=0.6)
-#         ax2.set_ylabel("Avg reward")
-#         for i,v in enumerate(reward_by_diff.values):
-#             ax2.text(i, v + (0.05 if v>=0 else -0.15), f"{v:.2f}", ha="center")
-#         st.pyplot(fig2)
-
-#         st.markdown("### Topics to focus on (lowest accuracy)")
-#         # We saved topic names as session topic_name in JSON - fallback to 'unknown' if not present in CSV
-#         # derive topic accuracy by using the 'question' field and session jsons: fallback is to group by topic stored earlier
-#         # Here, approximate by grouping by session's first question topic if available; else show per-question frequency of wrong answers by keywords
-#         # Simpler: use counts of incorrect by topic_name present in session JSONs
-#         # Build mapping session_id -> topic_name (if available)
-#         topic_map = {}
-#         sd = Path(PROJECT_ROOT / "data" / "session_details")
-#         if sd.exists():
-#             for f in sd.glob("*.json"):
-#                 try:
-#                     jd = json.loads(f.read_text(encoding="utf-8"))
-#                     sid = jd.get("session_id")
-#                     tname = jd.get("topic_name") or jd.get("topic_name", "Unknown")
-#                     if sid:
-#                         topic_map[sid] = tname
-#                 except Exception:
-#                     pass
-#         # attach topic_name to df where possible
-#         df["topic_name"] = df["session_id"].map(topic_map).fillna("Unknown")
-#         topic_acc = df.groupby("topic_name")["correct"].mean().sort_values()
-#         # show bottom 5 topics to focus on
-#         if len(topic_acc) > 0:
-#             to_focus = topic_acc.head(5)
-#             st.table((to_focus*100).round(2).rename("Accuracy (%)").to_frame())
-#             rec_topic = to_focus.idxmin()
-#         else:
-#             st.info("No topic metadata available yet.")
-#             rec_topic = None
-
-#         # heatmap correctness by question position
-#         st.markdown("### Where do mistakes happen? (by question position in session)")
-#         max_q = int(df["q_no"].max())
-#         heat = np.zeros((max_q,))
-#         counts = np.zeros((max_q,))
-#         for _, row in df.iterrows():
-#             pos = int(row["q_no"]) - 1
-#             heat[pos] += int(row["correct"])
-#             counts[pos] += 1
-#         frac = np.divide(heat, np.maximum(1, counts))
-#         fig3, ax3 = plt.subplots(figsize=(8,1.5))
-#         ax3.imshow(frac.reshape(1,-1), aspect='auto', cmap='RdYlGn', vmin=0, vmax=1)
-#         ax3.set_yticks([])
-#         ax3.set_xticks(np.arange(max_q))
-#         ax3.set_xlabel("Question position (1..N)")
-#         st.pyplot(fig3)
-
-#         # Personalized recommendations (simple rule-based from aggregated stats)
-#         st.markdown("### Personalized recommendation")
-#         recs = []
-#         # If medium accuracy low, recommend medium; else recommend weakest difficulty
-#         weakest_diff = acc_by_diff.idxmin()
-#         weakest_diff_acc = acc_by_diff.min()
-#         if weakest_diff_acc < 0.6:
-#             recs.append(f"Focus on **{weakest_diff.title()}**-level questions (accuracy {weakest_diff_acc*100:.1f}%).")
-#         if rec_topic and isinstance(rec_topic, str) and rec_topic != "Unknown":
-#             recs.append(f"Practice more questions in **{rec_topic}** — your per-topic accuracy is low there.")
-#         # which difficulty gave worst reward
-#         worst_reward = reward_by_diff.idxmin()
-#         recs.append(f"Avoid spending too much time on difficulties that give negative average reward (worst: **{worst_reward.title()}**).")
-#         # show top 3 recs
-#         for r in recs[:3]:
-#             st.info(r)
-
-#         # Session explorer & PDF download
-#         st.markdown("---")
-#         st.subheader("Session explorer & report")
-#         sess = df.groupby("session_id").agg(accuracy=("correct","mean"), total_reward=("reward","sum"), questions=("q_no","count")).reset_index().sort_values("questions", ascending=False)
-#         sid = st.selectbox("Select session to inspect", options=sess["session_id"].tolist())
-#         if sid:
-#             sdata = df[df["session_id"]==sid].sort_values("q_no")
-#             st.table(sdata[["q_no","difficulty","question","chosen","correct","time_taken","reward"]].reset_index(drop=True))
-#             if st.button("Generate PDF for this session"):
-#                 try:
-#                     pdf_path = generate_session_report(sid)
-#                     with open(pdf_path, "rb") as f:
-#                         st.download_button("Download PDF report", f.read(), file_name=os.path.basename(pdf_path))
-#                 except Exception as e:
-#                     st.error(f"PDF generation failed: {e}")
-
-#         st.markdown("---")
-#         st.caption("Tip: repeat the short assessment often (every 1–2 weeks) to track improvement. Use Q-Card for targeted practice.")
-
 # app/streamlit_app.py
 """
-Adaptive QuizRL+ — Unified, polished Streamlit app
-- Quiz: 5-question assessment (difficulty HIDDEN from user)
-- Q-Card: choose difficulty, difficulty SHOWN, repeat until correct
-- Dashboard: actionable insights & PDF report generation
-- TriviaNerd integration is optional via environment variables; otherwise falls back to OpenTDB then local CSV.
+Adaptive QuizRL+ — full app
+- Robust agent selection via safe_agent_select(...)
+- Deterministic session pools and per-session seen list to avoid repeats
+- Q-Card practice mode (unchanged behavior)
+- Dashboard with adaptiveness diagnostics and accuracy/time-by-position chart
+- PDF generation using reportlab
+- Debug toggle to inspect agent decisions and passed states
 """
 
 import os
@@ -375,6 +16,7 @@ import html
 import random
 import json
 from pathlib import Path
+from typing import Tuple, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -383,137 +25,325 @@ import matplotlib.pyplot as plt
 import requests
 
 # ------------------------------
-# Project setup
+# Project paths & setup
 # ------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 DATA_DIR = PROJECT_ROOT / "data"
-SD_DIR = DATA_DIR / "session_details"
+SESSION_DETAILS_DIR = DATA_DIR / "session_details"
 MODELS_DIR = PROJECT_ROOT / "models"
 os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(SD_DIR, exist_ok=True)
+os.makedirs(SESSION_DETAILS_DIR, exist_ok=True)
 os.makedirs(MODELS_DIR, exist_ok=True)
 
-# Local helpers (optional)
+INTERACTIONS_CSV = DATA_DIR / "interactions.csv"
+SESSION_COUNTER = DATA_DIR / "session_counter.txt"
+
+# Add a reports dir for generated PDFs
+SESSION_REPORTS_DIR = DATA_DIR / "session_reports"
+SESSION_REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+
+# ------------------------------
+# Optional local agent imports (best-effort)
+# ------------------------------
+HeuristicAgent = None
+DQNAgent = None
 try:
-    from agents.dqn_agent import DQNAgent
+    from agents.heuristic_cloned import HeuristicAgent as _HA
+    HeuristicAgent = _HA
+except Exception:
+    try:
+        from agents.heuristic import HeuristicAgent as _HA2
+        HeuristicAgent = _HA2
+    except Exception:
+        HeuristicAgent = None
+
+try:
+    from agents.dqn_agent import DQNAgent as _DQN
+    DQNAgent = _DQN
 except Exception:
     DQNAgent = None
 
-try:
-    from utils_logging import start_session, log_interaction, log_transition, CSV_PATH
-except Exception:
-    # minimal fallbacks so app runs even if utils_logging missing
-    CSV_PATH = str(DATA_DIR / "interactions.csv")
+# ------------------------------
+# Debug toggle in sidebar
+# ------------------------------
+DEBUG_AGENT = st.sidebar.checkbox("Show agent debug (actions & states)", value=False)
 
-    def start_session(user_id="anon"):
-        sid = f"local-{int(time.time()*1000)}"
-        return {"session_id": sid, "user_id": user_id, "ts": time.time(), "topic_name": None}
+# ------------------------------
+# Safe rerun helper
+# ------------------------------
+def safe_rerun():
+    """
+    Call streamlit's experimental_rerun if available and callable.
+    Otherwise toggle a session_state sentinel to force a rerender.
+    """
+    rerun_attr = getattr(st, "experimental_rerun", None)
+    if callable(rerun_attr):
+        try:
+            rerun_attr()
+            return
+        except Exception:
+            pass
+    st.session_state["_rerun_toggle"] = not st.session_state.get("_rerun_toggle", False)
 
-    def _append_row(row):
-        df = pd.DataFrame([row])
-        if os.path.exists(CSV_PATH):
-            df.to_csv(CSV_PATH, mode="a", header=False, index=False)
-        else:
-            df.to_csv(CSV_PATH, index=False)
+# ------------------------------
+# Robust agent selection helper
+# ------------------------------
+def safe_agent_select(agent, state, fallback=[0,1,2]):
+    """
+    Try several ways to call agent.select to handle variations across agent implementations.
+    Returns an int action (0/1/2).
+    """
+    if agent is None:
+        return random.choice(fallback)
 
-    def log_interaction(session_meta, q_no, difficulty, question, chosen, correct, time_taken, reward, agent_type="Adaptive", model_name=""):
-        row = {
-            "ts": pd.Timestamp.now(),
-            "session_id": session_meta.get("session_id", "unknown"),
-            "user_id": session_meta.get("user_id", "anon"),
-            "q_no": q_no,
-            "difficulty": difficulty,
-            "question": question,
-            "chosen": chosen,
-            "correct": int(bool(correct)),
-            "time_taken": float(time_taken),
-            "reward": float(reward),
-            "agent_type": agent_type,
-            "model_name": model_name
-        }
-        _append_row(row)
+    # normalize state to np.array float32
+    try:
+        s_arr = np.array(state, dtype=np.float32)
+    except Exception:
+        s_arr = state
 
-    def log_transition(s, a, r, ns, done, session_id):
-        # optional: no-op fallback
+    # Try common argument forms
+    tries = [
+        (s_arr,),                          # agent.select(state)
+        (s_arr.reshape((1, -1)),),         # agent.select(1xN)
+        (s_arr.tolist(),),                 # python list
+    ]
+
+    kw_tries = [
+        {"eval_mode": True},
+        {"training": False},
+        {"train": False},
+        {"deterministic": True},
+        {"evaluation": True},
+    ]
+
+    # 1) try simple calls
+    for args in tries:
+        try:
+            a = agent.select(*args)
+            # handle numpy/scalar weirdness
+            try:
+                return int(np.asarray(a).item())
+            except Exception:
+                return int(a)
+        except Exception:
+            pass
+
+    # 2) try calls with kwargs
+    for args in tries:
+        for kw in kw_tries:
+            try:
+                a = agent.select(*args, **kw)
+                try:
+                    return int(np.asarray(a).item())
+                except Exception:
+                    return int(a)
+            except Exception:
+                pass
+
+    # 3) try attribute-based policy if exists
+    try:
+        if hasattr(agent, "policy"):
+            try:
+                a = agent.policy(s_arr)
+                try:
+                    return int(np.asarray(a).item())
+                except Exception:
+                    return int(a)
+            except Exception:
+                pass
+    except Exception:
         pass
 
-try:
-    from reporting import generate_session_report
-except Exception:
-    def generate_session_report(session_id):
-        raise RuntimeError("reporting.generate_session_report not available.")
+    # 4) try alternative method names
+    for name in ("act","act_greedy","act_eval","action","forward"):
+        if hasattr(agent, name):
+            try:
+                fn = getattr(agent, name)
+                a = fn(s_arr)
+                try:
+                    return int(np.asarray(a).item())
+                except Exception:
+                    return int(a)
+            except Exception:
+                pass
 
-
-# ------------------------------
-# Streamlit UI config
-# ------------------------------
-st.set_page_config(page_title="Adaptive QuizRL+", page_icon="🧠", layout="wide")
-st.title("Adaptive QuizRL+")
-st.caption("Assessment (5 questions) — Practice Q-Cards — Dashboard & Reports")
-
-page = st.sidebar.selectbox("Navigate", ["Quiz (5 Qs)", "Q-Card (Practice)", "Dashboard & Report"])
-st.sidebar.markdown("---")
-st.sidebar.write("Tip: if you trained a DQN, put the model at `models/dqn.pth` or run `python -m experiments.train_dqn`.")
+    # 5) last resort: random
+    return random.choice(fallback)
 
 # ------------------------------
-# QUESTION PROVIDER: TriviaNerd optional -> OpenTDB -> local CSV fallback
+# Session & logging wrappers
 # ------------------------------
-TRIVIANERD_ENABLED = os.getenv("TRIVIANERD_ENABLED", "false").lower() in ("1", "true", "yes")
-TRIVIANERD_URL = os.getenv("TRIVIANERD_URL", "").strip()
-TRIVIANERD_KEY = os.getenv("TRIVIANERD_KEY", "").strip()
-OPENTDB_BASE = "https://opentdb.com/api.php"
-LOCAL_QCSV = DATA_DIR / "questions.csv"  # optional local dataset
+def _ensure_session_counter():
+    if not SESSION_COUNTER.exists():
+        SESSION_COUNTER.write_text("0")
 
-def _get_from_trivianerd(category, difficulty):
-    if not TRIVIANERD_ENABLED or not TRIVIANERD_URL:
-        raise RuntimeError("TriviaNerd disabled or no URL set")
-    headers = {}
-    if TRIVIANERD_KEY:
-        headers["x-api-key"] = TRIVIANERD_KEY
-        headers["Authorization"] = f"Bearer {TRIVIANERD_KEY}"
-    params = {"limit": 1, "categories": category, "difficulty": difficulty}
-    resp = requests.get(TRIVIANERD_URL, params=params, headers=headers, timeout=6)
-    resp.raise_for_status()
-    data = resp.json()
-    # attempt to parse common shapes
-    item = None
-    if isinstance(data, list) and data:
-        item = data[0]
-    elif isinstance(data, dict):
-        if data.get("results"):
-            item = data["results"][0]
-        elif data.get("questions"):
-            item = data["questions"][0]
-        else:
-            item = data
-    if not item:
-        raise ValueError("No question returned from TriviaNerd")
-    q_text = item.get("question") or item.get("text") or item.get("title") or ""
-    # options parsing
-    if "incorrect_answers" in item and "correct_answer" in item:
-        options = [html.unescape(x) for x in item.get("incorrect_answers", [])] + [html.unescape(item.get("correct_answer",""))]
-        random.shuffle(options)
-        correct = html.unescape(item.get("correct_answer",""))
+def _read_session_counter():
+    _ensure_session_counter()
+    try:
+        return int(SESSION_COUNTER.read_text().strip() or "0")
+    except Exception:
+        return 0
+
+def _increment_session_counter():
+    n = _read_session_counter() + 1
+    SESSION_COUNTER.write_text(str(n))
+    return n
+
+def start_session_local(user_id="anon", topic_name=None, session_type: Optional[str]=None):
+    sid_num = _increment_session_counter()
+    sid = str(sid_num)
+    meta = {"session_id": sid, "user_id": user_id, "ts": time.time(), "topic_name": topic_name, "session_type": session_type}
+    try:
+        (SESSION_DETAILS_DIR / f"{sid}.json").write_text(json.dumps(meta), encoding="utf-8")
+    except Exception:
+        pass
+    return meta
+
+def log_interaction_local(session_meta, q_no, difficulty, question, chosen, correct, time_taken, reward, agent_type="Adaptive", model_name=""):
+    row = {
+        "ts": pd.Timestamp.now(),
+        "session_id": session_meta.get("session_id", "0"),
+        "user_id": session_meta.get("user_id", "anon"),
+        "q_no": q_no,
+        "difficulty": difficulty,
+        "question": question,
+        "chosen": chosen,
+        "correct": int(bool(correct)),
+        "time_taken": float(time_taken),
+        "reward": float(reward),
+        "agent_type": agent_type,
+        "model_name": model_name
+    }
+    df_row = pd.DataFrame([row])
+    if not Path(INTERACTIONS_CSV).exists():
+        df_row.to_csv(INTERACTIONS_CSV, index=False)
     else:
-        # try 'incorrectAnswers' or enumerated answers
-        incorrect = item.get("incorrectAnswers") or item.get("incorrect_answers") or item.get("wrong_answers") or []
-        correct = item.get("correct") or item.get("correctAnswer") or item.get("answer")
-        options = [html.unescape(str(x)) for x in incorrect] + ([html.unescape(str(correct))] if correct else [])
-        if not options:
-            raise ValueError("No options parsed from TriviaNerd response")
-        random.shuffle(options)
-    return html.unescape(q_text), options, correct
+        df_row.to_csv(INTERACTIONS_CSV, index=False, mode="a", header=False)
 
-def _get_from_opentdb(category, difficulty):
+def log_transition_local(s, a, r, ns, done, session_id):
+    return
+
+# Attempt to import user's utils_logging; else fallback
+try:
+    from utils_logging import start_session as imported_start_session, log_interaction as imported_log_interaction, log_transition as imported_log_transition, CSV_PATH as imported_csv_path
+    import inspect
+    sig = inspect.signature(imported_start_session)
+    if "topic_name" in sig.parameters:
+        start_session = imported_start_session
+    else:
+        def start_session(user_id="anon", topic_name=None, session_type=None):
+            return imported_start_session(user_id=user_id)
+    log_interaction = imported_log_interaction
+    log_transition = imported_log_transition
+    CSV_PATH = str(imported_csv_path) if 'imported_csv_path' in globals() else INTERACTIONS_CSV
+except Exception:
+    start_session = start_session_local
+    log_interaction = log_interaction_local
+    log_transition = log_transition_local
+    CSV_PATH = INTERACTIONS_CSV
+
+# ------------------------------
+# REPORTING: PDF generator (reportlab)
+# ------------------------------
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+import datetime
+
+def generate_session_report(session_id: str, session_df: pd.DataFrame, session_kind: str = "Unknown", out_dir: Path = SESSION_REPORTS_DIR):
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    pdf_path = out_dir / f"session_{session_id}_{timestamp}.pdf"
+
+    preferred = ["q_no", "difficulty", "question", "chosen", "correct", "time_taken", "reward"]
+    display_cols = [c for c in preferred if c in session_df.columns]
+    display_cols += [c for c in session_df.columns if c not in display_cols]
+    display_cols = ["Session Type"] + display_cols
+
+    header = [col.capitalize().replace("_", " ") for col in display_cols]
+    data = [header]
+
+    def _cell(val):
+        s = "" if pd.isna(val) else str(val)
+        return (s[:280] + " …") if len(s) > 300 else s
+
+    for _, row in session_df.iterrows():
+        row_kind = None
+        for c in ("session_type", "session_kind", "type", "mode", "source", "agent_type"):
+            if c in session_df.columns:
+                v = row.get(c)
+                if pd.notna(v):
+                    row_kind = str(v)
+                    break
+        if row_kind is None or row_kind == "nan":
+            row_kind = session_kind
+        row_cells = [row_kind] + [_cell(row[c]) if c in session_df.columns else "" for c in display_cols[1:]]
+        data.append(row_cells)
+
+    doc = SimpleDocTemplate(str(pdf_path), pagesize=A4, rightMargin=18, leftMargin=18, topMargin=18, bottomMargin=18)
+    styles = getSampleStyleSheet()
+    flow = []
+    flow.append(Paragraph(f"Session Report — {session_id}", styles["Title"]))
+    flow.append(Spacer(1, 6))
+    flow.append(Paragraph(f"Detected session type: <b>{session_kind}</b>", styles["Normal"]))
+    flow.append(Spacer(1, 6))
+    flow.append(Paragraph(f"Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles["Normal"]))
+    flow.append(Spacer(1, 12))
+    try:
+        total_q = len(session_df)
+        if "correct" in session_df.columns:
+            accuracy = session_df["correct"].mean()
+            flow.append(Paragraph(f"Total questions: {total_q} — Accuracy: {accuracy:.3f}", styles["Normal"]))
+        else:
+            flow.append(Paragraph(f"Total questions: {total_q}", styles["Normal"]))
+    except Exception:
+        pass
+    flow.append(Spacer(1, 12))
+    table = Table(data, repeatRows=1)
+    style = TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#e8e8e8")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.black),
+        ("ALIGN", (0,0), (-1,-1), "LEFT"),
+        ("VALIGN", (0,0), (-1,-1), "TOP"),
+        ("INNERGRID", (0,0), (-1,-1), 0.25, colors.grey),
+        ("BOX", (0,0), (-1,-1), 0.5, colors.black),
+    ])
+    table.setStyle(style)
+    flow.append(table)
+    doc.build(flow)
+    return str(pdf_path)
+
+# ------------------------------
+# Question provider
+# ------------------------------
+OPENTDB_BASE = "https://opentdb.com/api.php"
+LOCAL_QCSV = DATA_DIR / "questions.csv"
+FALLBACK_Q = ("[Fallback] What is 2 + 2?", ["3","4","5","22"], "4")
+
+@st.cache_data(ttl=600)
+def load_local_questions() -> pd.DataFrame:
+    """Load local CSV into a DataFrame (cached)."""
+    if LOCAL_QCSV.exists():
+        try:
+            df = pd.read_csv(LOCAL_QCSV)
+            return df
+        except Exception:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
+def _fetch_opentdb(category, difficulty):
     url = f"{OPENTDB_BASE}?amount=1&type=multiple&category={category}&difficulty={difficulty}"
-    r = requests.get(url, timeout=5)
+    r = requests.get(url, timeout=6)
     r.raise_for_status()
     d = r.json()
-    if d.get("response_code", 1) != 0 or not d.get("results"):
-        raise ValueError("OpenTDB returned no results")
+    if d.get("response_code",1) != 0 or not d.get("results"):
+        raise ValueError("OpenTDB: no results")
     q = d["results"][0]
     question = html.unescape(q["question"])
     correct = html.unescape(q["correct_answer"])
@@ -521,127 +351,341 @@ def _get_from_opentdb(category, difficulty):
     random.shuffle(options)
     return question, options, correct
 
-def _get_from_local(category, difficulty):
-    if not LOCAL_QCSV.exists():
-        raise FileNotFoundError("Local questions CSV not found")
-    df = pd.read_csv(LOCAL_QCSV)
-    # try filter by category/difficulty if present
-    if "topic" in df.columns:
+def _fetch_local_random(category, difficulty):
+    df = load_local_questions()
+    if df.empty:
+        raise FileNotFoundError("Local CSV missing")
+    if "topic" in df.columns and category is not None:
         df = df[df["topic"].astype(str).str.lower().str.contains(str(category).lower())]
     if "difficulty" in df.columns:
-        df = df[df["difficulty"].astype(str).str.lower() == difficulty.lower()]
+        dff = df[df["difficulty"].astype(str).str.lower() == difficulty.lower()]
+        if not dff.empty:
+            df = dff
     if df.empty:
-        df = pd.read_csv(LOCAL_QCSV)  # fallback to any
+        df = load_local_questions()
+        if df.empty:
+            raise FileNotFoundError("No local questions at all")
     row = df.sample(1).iloc[0]
-    question = str(row.get("question", "[local] What is 2+2?"))
-    options = []
-    # try reading option columns
+    question = str(row.get("question", FALLBACK_Q[0]))
+    opts = []
     for c in ["option_a","option_b","option_c","option_d","a","b","c","d"]:
         if c in row.index and pd.notna(row[c]):
-            options.append(str(row[c]))
-    if not options and "options" in row.index:
-        opts = row["options"]
-        if isinstance(opts, str):
-            options = [x.strip() for x in opts.split("|") if x.strip()]
-    if not options:
-        options = ["3","4","5","22"]
-        correct = "4"
-    else:
-        correct = str(row.get("correct", row.get("answer", options[0])))
-    random.shuffle(options)
-    return question, options, correct
+            opts.append(str(row[c]))
+    if not opts and "options" in row.index:
+        opts = [x.strip() for x in str(row["options"]).split("|") if x.strip()]
+    if not opts:
+        return FALLBACK_Q
+    correct = str(row.get("correct", row.get("answer", opts[0])))
+    random.shuffle(opts)
+    return question, opts, correct
 
-def get_question_safe(category, difficulty="medium"):
-    """
-    Tries: TriviaNerd (optional) -> OpenTDB -> local CSV -> fallback.
-    category may be numeric (OpenTDB) or string used for local mapping.
-    """
-    # 1) TriviaNerd (optional)
-    if TRIVIANERD_ENABLED and TRIVIANERD_URL:
+def get_question_safe(category, difficulty="medium", retries=3):
+    last_exc = None
+    for _ in range(retries):
         try:
-            return _get_from_trivianerd(category, difficulty)
+            return _fetch_local_random(category, difficulty)
+        except Exception as e:
+            last_exc = e
+            try:
+                return _fetch_opentdb(category, difficulty)
+            except Exception:
+                last_exc = e
+                continue
+    try:
+        return _fetch_local_random(category, difficulty)
+    except Exception:
+        pass
+    return FALLBACK_Q
+
+# ------------------------------
+# Build a session question pool (deterministic order, non-repeating)
+# ------------------------------
+def build_question_pool(topic: int, difficulty: str, pool_size: int = 20) -> List[Tuple[str, List[str], str]]:
+    """
+    Build a question pool for the session. Prefers local CSV questions; falls back to OpenTDB as needed.
+    Returns list of (q, options, correct) in stable order (shuffled once).
+    """
+    pool = []
+    df_local = load_local_questions()
+    if not df_local.empty:
+        try:
+            ldf = df_local.copy()
+            if "topic" in ldf.columns:
+                ldf = ldf[ldf["topic"].astype(str).str.lower().str.contains(str(topic).lower())]
+            if "difficulty" in ldf.columns:
+                ldf = ldf[ldf["difficulty"].astype(str).str.lower() == difficulty.lower()]
+            if not ldf.empty:
+                sample_n = min(pool_size, len(ldf))
+                sampled = ldf.sample(sample_n, random_state=42)
+                for _, row in sampled.iterrows():
+                    q = str(row.get("question", FALLBACK_Q[0]))
+                    opts = []
+                    for c in ["option_a","option_b","option_c","option_d","a","b","c","d"]:
+                        if c in row.index and pd.notna(row[c]):
+                            opts.append(str(row[c]))
+                    if not opts and "options" in row.index:
+                        opts = [x.strip() for x in str(row["options"]).split("|") if x.strip()]
+                    if not opts:
+                        continue
+                    correct = str(row.get("correct", row.get("answer", opts[0])))
+                    pool.append((q, opts, correct))
         except Exception:
-            # fail silently and fallback
             pass
 
-    # 2) OpenTDB
-    try:
-        return _get_from_opentdb(category, difficulty)
-    except Exception:
-        pass
+    attempts = 0
+    needed = pool_size - len(pool)
+    while needed > 0 and attempts < pool_size * 2:
+        attempts += 1
+        try:
+            q, opts, correct = _fetch_opentdb(topic, difficulty)
+            if q not in [p[0] for p in pool]:
+                pool.append((q, opts, correct))
+                needed -= 1
+        except Exception:
+            break
 
-    # 3) local CSV
-    try:
-        return _get_from_local(category, difficulty)
-    except Exception:
-        pass
+    if not pool:
+        pool.append(FALLBACK_Q)
 
-    # 4) guaranteed fallback
-    return "[Fallback] What is 2 + 2?", ["3","4","5","22"], "4"
+    rng = random.Random(42)
+    rng.shuffle(pool)
+    return pool
 
 # ------------------------------
-# Utility mapping & helpers
+# Pop next unique question from pool (session-level uniqueness)
+# ------------------------------
+def pop_next_question_from_pool(session_key: str, topic: int, difficulty: str, max_attempts: int = 8) -> Tuple[str, list, str]:
+    """
+    Pop next unique question from the per-session pool, skipping any question
+    text already seen in this session across all difficulties.
+    """
+    pool_key = f"qpool_{session_key}"
+    seen_key = f"seen_{session_key}"
+
+    # Ensure seen list exists (fallback)
+    if seen_key not in st.session_state:
+        st.session_state[seen_key] = []
+
+    # Ensure pool exists
+    if pool_key not in st.session_state or not st.session_state[pool_key]:
+        st.session_state[pool_key] = build_question_pool(topic, difficulty, pool_size=30)
+
+    attempts = 0
+    while attempts < max_attempts:
+        attempts += 1
+        if not st.session_state[pool_key]:
+            st.session_state[pool_key] = build_question_pool(topic, difficulty, pool_size=30)
+            if not st.session_state[pool_key]:
+                break
+
+        q, opts, correct = st.session_state[pool_key].pop(0)
+
+        if q in st.session_state[seen_key]:
+            # skip duplicates
+            continue
+
+        try:
+            st.session_state[seen_key].append(q)
+        except Exception:
+            pass
+        return q, opts, correct
+
+    # fallback: try to fetch unique from safe source
+    fallback_attempts = 0
+    while fallback_attempts < 6:
+        fallback_attempts += 1
+        q, opts, correct = get_question_safe(topic, difficulty)
+        if q not in st.session_state.get(seen_key, []):
+            try:
+                st.session_state[seen_key].append(q)
+            except Exception:
+                pass
+            return q, opts, correct
+
+    # absolute fallback: may repeat if truly nothing unique left
+    if st.session_state.get(pool_key):
+        return st.session_state[pool_key].pop(0)
+    return FALLBACK_Q
+
+# ------------------------------
+# Helpers & constants
 # ------------------------------
 ACTION_TO_DIFF = {0: "easy", 1: "medium", 2: "hard"}
+DIFF_TO_INDEX = {"easy": 0, "medium": 1, "hard": 2}
 
 def reset_assessment_state():
-    keys = ["session_meta","topic","topic_name","agent","q_no","score","start_time","state","last_action","current_question","max_q","agent_loaded"]
+    keys = [
+        "session_meta","topic","topic_name","agent","agent_type","model_path","q_no","score","start_time",
+        "state","last_action","current_question","max_q","agent_loaded","assessment_done","assessment_results",
+    ]
+    # Also clear any pool/seen keys for safety
+    for k in list(st.session_state.keys()):
+        if k.startswith("qpool_") or k.startswith("seen_"):
+            try:
+                del st.session_state[k]
+            except Exception:
+                pass
     for k in keys:
         if k in st.session_state:
             del st.session_state[k]
 
 # ------------------------------
-# QUIZ (5 questions) - difficulty hidden
+# Streamlit UI config
+# ------------------------------
+st.set_page_config(page_title="Adaptive QuizRL+", page_icon="🧠", layout="wide")
+st.title("Adaptive QuizRL+")
+st.caption("Assessment (5 questions) — Q-Card practice — Dashboard")
+
+page = st.sidebar.selectbox("Navigate", ["Quiz (5 Qs)", "Q-Card (Practice)", "Dashboard & Report"])
+st.sidebar.markdown("Tip: place .pth models in models/ or upload on the Quiz page.")
+
+# ------------------------------
+# QUIZ (5 questions) page
 # ------------------------------
 if page == "Quiz (5 Qs)":
-    st.header("Assessment — 5 Questions")
-    st.write("Short adaptive assessment. Difficulty is chosen by the system (hidden).")
-    with st.form("quiz_start"):
+    st.header("Assessment — 5 Questions (difficulty hidden)")
+    with st.form("quiz_form"):
         cols = st.columns([2,2,2])
-        topics_map = {"General Knowledge":9, "Science & Nature":17, "Computers":18, "Mathematics":19, "Sports":21, "Geography":22, "History":23, "Art":25}
-        topic = cols[0].selectbox("Select topic", list(topics_map.keys()), index=3)
+        topics_map = {"General Knowledge":9,"Science & Nature":17,"Computers":18,"Mathematics":19,"Sports":21,"Geography":22,"History":23,"Art":25}
+        topic_name = cols[0].selectbox("Topic", list(topics_map.keys()), index=3)
         username = cols[1].text_input("Your name (optional)", value="You")
-        cols[2].markdown("Questions per session: **5**")
+        cols[2].markdown("Questions per session: **5** (fixed)")
+        model_options = ["Random"]
+        if HeuristicAgent is not None:
+            model_options.append("Heuristic")
+        default_model = MODELS_DIR / "dqn.pth"
+        if DQNAgent is not None and default_model.exists():
+            model_options.append("DQN — models/dqn.pth")
+        if DQNAgent is not None and any(MODELS_DIR.glob("*.pth")):
+            model_options.append("DQN — choose from models/")
+        if DQNAgent is not None:
+            model_options.append("DQN — upload .pth")
+        model_choice = cols[1].selectbox("Agent / Model", model_options, index=0)
         start = st.form_submit_button("Start Assessment")
+    # model upload/choose
+    if model_choice == "DQN — upload .pth":
+        uploaded = st.file_uploader("Upload .pth model (saved to models/)", type=["pth","pt"])
+        if uploaded:
+            save_path = MODELS_DIR / uploaded.name
+            with open(save_path,"wb") as f:
+                f.write(uploaded.getbuffer())
+            st.success(f"Saved uploaded model to {save_path.name}")
+            st.session_state["_uploaded_model"] = str(save_path)
+    if model_choice == "DQN — choose from models/":
+        available = [p.name for p in MODELS_DIR.glob("*.pth")]
+        if available:
+            chosen_model_name = st.selectbox("Choose model file", available)
+            if chosen_model_name:
+                st.session_state["_chosen_model"] = str(MODELS_DIR / chosen_model_name)
+        else:
+            st.info("No .pth files in models/ yet.")
+
     if start:
         reset_assessment_state()
-        st.session_state.session_meta = start_session(user_id=username or "anon")
-        st.session_state.topic = topics_map[topic]
-        st.session_state.topic_name = topic
+        st.session_state.session_meta = start_session(user_id=(username or "anon"), topic_name=topic_name, session_type="Quiz")
+        st.session_state.topic = topics_map[topic_name]
+        st.session_state.topic_name = topic_name
         st.session_state.max_q = 5
-        # load DQN agent if available (optional)
-        agent = None
-        if DQNAgent is not None:
-            try:
-                agent = DQNAgent()
-                model_path = MODELS_DIR / "dqn.pth"
-                if model_path.exists():
-                    agent.load(str(model_path))
-                    st.success("Adaptive policy loaded.")
-                    st.session_state.agent_loaded = True
-                else:
-                    st.info("No trained DQN found; running with default policy.")
-                    st.session_state.agent_loaded = False
-            except Exception:
-                agent = None
-        st.session_state.agent = agent
         st.session_state.q_no = 1
         st.session_state.score = 0
         st.session_state.start_time = None
-        st.session_state.state = np.array([0.0, 0.5, 0.0, 2.0], dtype=np.float32)
-        # initial action selection
-        try:
-            a = st.session_state.agent.select(st.session_state.state) if st.session_state.agent else random.choice([0,1,2])
-        except Exception:
-            a = random.choice([0,1,2])
-        st.session_state.last_action = int(a)
-        diff = ACTION_TO_DIFF.get(a, "medium")
-        st.session_state.current_question = get_question_safe(st.session_state.topic, diff)
-        st.rerun()
+        st.session_state.assessment_done = False
+        st.session_state.assessment_results = []
 
-    # active session
-    if "session_meta" in st.session_state:
-        st.subheader(f"{st.session_state.topic_name} — Question {st.session_state.q_no}/5")
+        # prepare pool key using session id and seen list
+        sid = st.session_state.session_meta["session_id"]
+        pkey = f"qpool_{sid}"
+        if pkey in st.session_state:
+            del st.session_state[pkey]
+        st.session_state[f"seen_{sid}"] = []
+
+        # load agent/model
+        agent = None
+        st.session_state.agent_type = "Random"
+        st.session_state.model_path = ""
+        if model_choice == "Random":
+            agent = None
+            st.session_state.agent_type = "Random"
+        elif model_choice == "Heuristic" and HeuristicAgent is not None:
+            try:
+                agent = HeuristicAgent()
+                st.session_state.agent_type = "Heuristic"
+            except Exception as e:
+                st.warning(f"Could not init HeuristicAgent: {e}")
+                agent = None
+        elif model_choice == "DQN — models/dqn.pth":
+            if DQNAgent is None:
+                st.error("DQNAgent class not found.")
+            else:
+                mp = MODELS_DIR / "dqn.pth"
+                if mp.exists():
+                    try:
+                        agent = DQNAgent()
+                        agent.load(str(mp))
+                        st.session_state.agent_type = "DQN"
+                        st.session_state.model_path = str(mp)
+                    except Exception as e:
+                        st.error(f"Failed to load model: {e}")
+                else:
+                    st.error("models/dqn.pth not found.")
+        elif model_choice == "DQN — choose from models/":
+            mpath = st.session_state.get("_chosen_model", None)
+            if mpath and DQNAgent is not None:
+                try:
+                    agent = DQNAgent()
+                    agent.load(mpath)
+                    st.session_state.agent_type = "DQN"
+                    st.session_state.model_path = mpath
+                except Exception as e:
+                    st.error(f"Failed to load chosen model: {e}")
+            else:
+                st.warning("No model chosen.")
+        elif model_choice == "DQN — upload .pth":
+            mpath = st.session_state.get("_uploaded_model", None)
+            if mpath and DQNAgent is not None:
+                try:
+                    agent = DQNAgent()
+                    agent.load(mpath)
+                    st.session_state.agent_type = "DQN"
+                    st.session_state.model_path = mpath
+                except Exception as e:
+                    st.error(f"Failed to load uploaded model: {e}")
+            else:
+                st.warning("No uploaded model yet.")
+        st.session_state.agent = agent
+        st.session_state.agent_loaded = bool(agent)
+
+        # initial state
+        st.session_state.state = np.array([0.0, 0.5, 0.0, float(DIFF_TO_INDEX["medium"])], dtype=np.float32)
+
+        # use safe agent selection helper
+        a = safe_agent_select(agent, st.session_state.state)
+        st.session_state.last_action = int(a)
+
+        if DEBUG_AGENT:
+            try:
+                st.sidebar.write("AGENT DEBUG — initial selection:", st.session_state.get("agent_type"), "action:", int(a))
+                st.sidebar.write("state:", st.session_state.get("state"))
+            except Exception:
+                pass
+
+        diff = ACTION_TO_DIFF.get(a, "medium")
+
+        # fetch first question deterministically from pool
+        q, opts, correct = pop_next_question_from_pool(st.session_state.session_meta["session_id"], st.session_state.topic, diff)
+        st.session_state.current_question = (q, opts, correct)
+
+    # active assessment rendering
+    if "session_meta" in st.session_state and not st.session_state.get("assessment_done", False):
+        st.subheader(f"{st.session_state.topic_name} — Q{st.session_state.q_no}/{st.session_state.max_q}")
+        st.write(f"Agent: **{st.session_state.get('agent_type','Random')}** — Model: `{Path(st.session_state.get('model_path','')).name or 'n/a'}`")
+
+        if "current_question" not in st.session_state or not st.session_state.current_question:
+            a = st.session_state.get("last_action", random.choice([0,1,2]))
+            diff = ACTION_TO_DIFF.get(a, "medium")
+            q, opts, correct = pop_next_question_from_pool(st.session_state.session_meta["session_id"], st.session_state.topic, diff)
+            st.session_state.current_question = (q, opts, correct)
+
         q, opts, correct = st.session_state.current_question
         st.write(q)
         if st.session_state.start_time is None:
@@ -654,206 +698,522 @@ if page == "Quiz (5 Qs)":
                 st.success("Correct ✅")
                 st.session_state.score += 1
             else:
-                st.error("Incorrect — the correct answer will be visible in your detailed report.")
+                st.error(f"Incorrect — correct answer: **{correct}**")
             a = st.session_state.last_action
             base = 1.0 if is_correct else -1.0
-            diff_factor = {0:0.5,1:1.0,2:1.5}[a]
+            diff_factor = {0:0.5,1:1.0,2:1.5}.get(a,1.0)
             time_pen = min(time_taken/10.0, 1.0)
             reward = base * diff_factor - 0.5 * time_pen
-            # log
-            log_interaction(st.session_state.session_meta, st.session_state.q_no, ACTION_TO_DIFF.get(a,"medium"), q, ans, int(is_correct), time_taken, reward, agent_type="Adaptive", model_name="dqn.pth" if st.session_state.get("agent_loaded") else "")
-            # store transition if agent supports
+
+            try:
+                log_interaction(st.session_state.session_meta, st.session_state.q_no, ACTION_TO_DIFF.get(a,"medium"), q, ans, int(is_correct), time_taken, reward, agent_type=st.session_state.get("agent_type","Random"), model_name=Path(st.session_state.get("model_path","")).name)
+            except Exception:
+                log_interaction_local(st.session_state.session_meta, st.session_state.q_no, ACTION_TO_DIFF.get(a,"medium"), q, ans, int(is_correct), time_taken, reward, agent_type=st.session_state.get("agent_type","Random"), model_name=Path(st.session_state.get("model_path","")).name)
+
             s = st.session_state.state
-            ns = np.array([1.0 if is_correct else 0.0, min(time_taken/10.0,1.0), st.session_state.q_no/st.session_state.max_q, float(a+1)], dtype=np.float32)
+            ns = np.array([1.0 if is_correct else 0.0, min(time_taken/10.0,1.0), st.session_state.q_no / st.session_state.max_q, float(a)], dtype=np.float32)
             done = (st.session_state.q_no >= st.session_state.max_q)
+            agent = st.session_state.get("agent", None)
             try:
-                if st.session_state.agent and hasattr(st.session_state.agent, "store"):
-                    st.session_state.agent.store(s, a, reward, ns, done)
+                if agent and hasattr(agent,"store"):
+                    agent.store(s,a,reward,ns,done)
                     log_transition(s,a,reward,ns,done, st.session_state.session_meta["session_id"])
+                if agent and hasattr(agent,"learn"):
+                    agent.learn()
             except Exception:
                 pass
-            try:
-                if st.session_state.agent and hasattr(st.session_state.agent, "learn"):
-                    st.session_state.agent.learn()
-            except Exception:
-                pass
+
+            st.session_state.assessment_results.append({
+                "q_no": st.session_state.q_no,
+                "question": q,
+                "difficulty": ACTION_TO_DIFF.get(a,"medium"),
+                "chosen": ans,
+                "correct": correct,
+                "is_correct": is_correct,
+                "time_taken": time_taken,
+                "reward": reward
+            })
             st.session_state.state = ns
+
             if done:
-                st.success(f"Assessment complete — Score: {st.session_state.score}/5")
-                st.info("Open Dashboard & Report for detailed feedback.")
-                st.rerun()
+                st.session_state.assessment_done = True
             else:
                 st.session_state.q_no += 1
-                try:
-                    na = st.session_state.agent.select(st.session_state.state) if st.session_state.agent else random.choice([0,1,2])
-                except Exception:
-                    na = random.choice([0,1,2])
+                # choose next action using safe helper
+                na = safe_agent_select(agent, st.session_state.state)
                 st.session_state.last_action = int(na)
+
+                if DEBUG_AGENT:
+                    try:
+                        st.sidebar.write("AGENT DEBUG — after submit action:", st.session_state.get("agent_type"), "action:", int(na))
+                        st.sidebar.write("state:", st.session_state.get("state"))
+                    except Exception:
+                        pass
+
                 next_diff = ACTION_TO_DIFF.get(na, "medium")
-                st.session_state.current_question = get_question_safe(st.session_state.topic, next_diff)
+                qn, optsn, correctn = pop_next_question_from_pool(st.session_state.session_meta["session_id"], st.session_state.topic, next_diff)
+                st.session_state.current_question = (qn, optsn, correctn)
                 st.session_state.start_time = None
-                st.rerun()
+
+    if st.session_state.get("assessment_done", False):
+        st.success(f"Assessment complete — Score: {st.session_state.get('score',0)}/{st.session_state.get('max_q',5)}")
+        df_res = pd.DataFrame(st.session_state.get("assessment_results", []))
+        if not df_res.empty:
+            st.table(df_res[["q_no","question","difficulty","chosen","correct","is_correct","time_taken","reward"]])
+        if st.button("Go to Dashboard"):
+            st.info("Switch to 'Dashboard & Report' from the left sidebar to view the report.")
+            safe_rerun()
 
 # ------------------------------
-# Q-CARD (Practice) - user chooses difficulty, repeat until correct
+# Q-CARD (Practice) page
 # ------------------------------
 elif page == "Q-Card (Practice)":
-    st.header("Q-Card — Practice Mode")
-    st.write("Choose difficulty — the difficulty is shown. If you answer incorrectly, the same card repeats until you answer it correctly.")
-    diff_choice = st.selectbox("Choose difficulty", ["easy","medium","hard"], index=1)
-    topics_map = {"General Knowledge":9, "Science & Nature":17, "Computers":18, "Mathematics":19, "Sports":21, "Geography":22, "History":23, "Art":25}
-    topic_choice = st.selectbox("Topic", list(topics_map.keys()), index=3)
-    st.write(f"Difficulty: **{diff_choice.title()}**")
+    st.header("Q-Card — Practice Mode (wrong cards re-queued)")
+    topics_map = {"General Knowledge":9,"Science & Nature":17,"Computers":18,"Mathematics":19,"Sports":21,"Geography":22,"History":23,"Art":25}
 
     if "qcard_state" not in st.session_state:
-        st.session_state.qcard_state = {"q_no":1, "score":0, "streak":0}
-    s = st.session_state.qcard_state
+        st.session_state.qcard_state = {"mode":"Classic","score":0.0,"streak":0,"round":0,"lives":3,"help_used":0,"skips":2,"hints":2,"target":50,"time_limit":20}
+    if "qcard_queue" not in st.session_state:
+        st.session_state.qcard_queue = []
 
-    # fetch if needed
-    if "qcard_current" not in st.session_state or st.session_state.get("qcard_current", {}).get("answered_correctly", False):
-        q, opts, correct = get_question_safe(topics_map[topic_choice], diff_choice)
-        st.session_state.qcard_current = {"q": q, "opts": opts, "correct": correct, "answered_correctly": False, "start_time": time.time()}
+    with st.form("qcard_setup"):
+        col_a, col_b, col_c = st.columns([2,2,2])
+        diff_choice = col_a.selectbox("Choose difficulty", ["easy","medium","hard"], index=1)
+        topic_choice = col_b.selectbox("Topic", list(topics_map.keys()), index=2)
+        mode_choice = col_c.selectbox("Mode", ["Classic","Timed","Competitive"], index=["Classic","Timed","Competitive"].index(st.session_state.qcard_state.get("mode","Classic")))
+        n_cards = st.number_input("Distinct cards to load", min_value=3, max_value=30, value=10, step=1)
+        start_practice = st.form_submit_button("Start Practice")
+    st.session_state.qcard_state["mode"] = mode_choice
+    if mode_choice == "Timed":
+        st.session_state.qcard_state["time_limit"] = st.slider("Time per card (seconds)", min_value=5, max_value=90, value=st.session_state.qcard_state.get("time_limit",20))
+    if mode_choice == "Competitive":
+        st.session_state.qcard_state["target"] = st.number_input("Target score to reach", min_value=10, max_value=1000, value=st.session_state.qcard_state.get("target",50))
 
-    cur = st.session_state.qcard_current
-    st.subheader(f"Card #{s['q_no']}")
-    st.write(cur["q"])
-    ans = st.radio("Choose an answer:", cur["opts"], key=f"qcard_ans_{s['q_no']}")
-    if st.button("Submit Answer"):
-        taken = max(0.01, time.time() - cur["start_time"])
-        if ans == cur["correct"]:
-            st.success("Correct — well done!")
-            s["score"] += 1
-            s["streak"] += 1
-            cur["answered_correctly"] = True
-            # log practice
-            log_interaction(start_session(user_id="practice"), s["q_no"], diff_choice, cur["q"], ans, True, taken, 1.0, agent_type="Practice")
-            s["q_no"] += 1
-            st.session_state.qcard_current = {"q": None, "opts": None, "correct": None, "answered_correctly": False}
-            st.rerun()
-        else:
-            st.error("Incorrect — this question will repeat until you answer it correctly.")
-            s["streak"] = 0
-            log_interaction(start_session(user_id="practice"), s["q_no"], diff_choice, cur["q"], ans, False, taken, -0.5, agent_type="Practice")
-            st.session_state.qcard_current["start_time"] = time.time()
+    if start_practice:
+        st.session_state.qcard_queue = []
+        attempts = 0
+        while len(st.session_state.qcard_queue) < n_cards and attempts < n_cards * 6:
+            q, opts, correct = get_question_safe(topics_map[topic_choice], diff_choice)
+            if not any(q == item["q"] for item in st.session_state.qcard_queue):
+                st.session_state.qcard_queue.append({"q":q,"opts":opts,"correct":correct,"difficulty":diff_choice,"topic":topic_choice})
+            attempts += 1
+        st.session_state.qcard_state.update({"score":0.0,"streak":0,"round":0,"lives":3,"help_used":0,"skips":2,"hints":2})
+        st.session_state.current_card = None
+        st.success(f"Loaded {len(st.session_state.qcard_queue)} cards for practice (Topic: {topic_choice}, Difficulty: {diff_choice})")
+        safe_rerun()
 
-    st.markdown("---")
-    st.write(f"Practice Score: **{s['score']}**  •  Current streak: **{s['streak']}**")
+    if not st.session_state.qcard_queue:
+        st.info("No cards loaded. Use the settings above and press 'Start Practice' to load questions.")
+    else:
+        if "current_card" not in st.session_state or st.session_state.current_card is None:
+            st.session_state.current_card = st.session_state.qcard_queue[0]
+        card = st.session_state.current_card
+        state = st.session_state.qcard_state
+
+        st.subheader(f"Card #{state['round']+1} — Difficulty: {card['difficulty'].title()} • Topic: {card['topic']}")
+        st.write(card["q"])
+        ans_key = f"qcard_choice_{state['round']}"
+        opts = card.get("opts", [])
+        ans = st.radio("Pick an option:", opts, key=ans_key)
+
+        col1, col2, col3, col4 = st.columns([1,1,1,2])
+        if col1.button("Help (use hint)"):
+            if state["hints"] > 0:
+                state["hints"] -= 1
+                state["help_used"] += 1
+                wrongs = [o for o in opts if o != card["correct"]]
+                if wrongs:
+                    remove = random.choice(wrongs)
+                    new_opts = [o for o in opts if o != remove]
+                    st.session_state.current_card["opts"] = new_opts
+                    st.warning("Hint used: one wrong option removed. Correct answers with help get reduced points.")
+                else:
+                    st.info("No hint available for this card.")
+                safe_rerun()
+            else:
+                st.warning("No hints left.")
+        if col2.button("Next"):
+            state["round"] += 1
+            st.session_state.qcard_queue = st.session_state.qcard_queue[1:] + [st.session_state.qcard_queue[0]]
+            st.session_state.current_card = None
+            safe_rerun()
+        if col3.button("Skip"):
+            if state["skips"] > 0:
+                state["skips"] -= 1
+                state["streak"] = 0
+                queue = st.session_state.qcard_queue
+                card = queue.pop(0)
+                pos = random.randint(0, max(0, len(queue)))
+                queue.insert(pos, card)
+                st.session_state.qcard_queue = queue
+                st.session_state.current_card = None
+                st.warning("Card skipped (minor penalty).")
+                state["round"] += 1
+                safe_rerun()
+            else:
+                st.warning("No skips left.")
+        col4.markdown(f"Score: **{state['score']:.1f}**  •  Streak: **{state['streak']}**  •  Lives: **{state['lives']}**  •  Hints: **{state['hints']}**  •  Skips: **{state['skips']}**")
+
+        if st.button("Submit Answer"):
+            is_correct = (ans == card["correct"])
+            help_used = (state["help_used"] > 0)
+            if is_correct:
+                base_points = 1.0 if card["difficulty"]=="easy" else 1.5 if card["difficulty"]=="medium" else 2.0
+                points = base_points * (0.5 if help_used else 1.0)
+                state["score"] += points
+                state["streak"] += 1
+                st.success(f"Correct! +{points:.1f} pts")
+                st.session_state.qcard_queue.pop(0)
+                st.session_state.current_card = None
+                state["help_used"] = 0
+            else:
+                state["lives"] -= 1
+                state["streak"] = 0
+                st.error(f"Incorrect — correct answer: **{card['correct']}**. Card will be requeued.")
+                queue = st.session_state.qcard_queue
+                card = queue.pop(0)
+                pos = random.randint(0, max(0, len(queue)))
+                queue.insert(pos, card)
+                st.session_state.qcard_queue = queue
+                st.session_state.current_card = None
+                state["help_used"] = 0
+
+            try:
+                log_interaction(start_session(user_id="practice", topic_name=card["topic"], session_type="Q-Card"), state["round"], card["difficulty"], card["q"], ans, int(is_correct), 0.0, 1.0 if is_correct else -0.5, agent_type="Practice")
+            except Exception:
+                log_interaction_local(start_session_local(user_id="practice", topic_name=card["topic"], session_type="Q-Card"), state["round"], card["difficulty"], card["q"], ans, int(is_correct), 0.0, 1.0 if is_correct else -0.5, agent_type="Practice")
+
+            state["round"] += 1
+
+            if state["lives"] <= 0:
+                st.balloons()
+                st.success(f"Game over — final score: {state['score']:.1f}")
+                st.session_state.qcard_queue = []
+                st.session_state.current_card = None
+                st.session_state.qcard_state = {"mode":"Classic","score":0.0,"streak":0,"round":0,"lives":3,"help_used":0,"skips":2,"hints":2,"target":50}
+                safe_rerun()
+            if mode_choice == "Competitive" and state["score"] >= state.get("target",50):
+                st.balloons()
+                st.success(f"Target achieved! Score: {state['score']:.1f}")
+                st.session_state.qcard_queue = []
+                st.session_state.current_card = None
+                st.session_state.qcard_state = {"mode":"Classic","score":0.0,"streak":0,"round":0,"lives":3,"help_used":0,"skips":2,"hints":2,"target":50}
+                safe_rerun()
+
+        st.markdown("---")
+        st.write(f"Cards remaining: {len(st.session_state.qcard_queue)}")
 
 # ------------------------------
-# DASHBOARD & REPORT
+# DASHBOARD & REPORT page (optimized)
 # ------------------------------
 elif page == "Dashboard & Report":
     st.header("Dashboard — Performance Insights")
-    if not os.path.exists(CSV_PATH):
-        st.info("No session logs available yet. Play a Quiz to collect session logs.")
+
+    @st.cache_data(ttl=60)
+    def load_interactions(csvpath: str):
+        try:
+            df = pd.read_csv(csvpath, parse_dates=["ts"])
+            return df
+        except Exception:
+            return pd.DataFrame()
+
+    csv_exists = Path(CSV_PATH).exists() if "CSV_PATH" in globals() else False
+    interactions_exists = Path(INTERACTIONS_CSV).exists() if "INTERACTIONS_CSV" in globals() else False
+
+    if not csv_exists and not interactions_exists:
+        st.info("No session logs yet. Run a Quiz or Q-Card practice to generate data.")
     else:
-        df = pd.read_csv(CSV_PATH, parse_dates=["ts"])
+        csvpath = CSV_PATH if csv_exists else INTERACTIONS_CSV
+        df = load_interactions(str(csvpath))
+
         if df.empty:
             st.info("No data yet.")
         else:
-            df["difficulty"] = df["difficulty"].astype(str)
-            # KPIs
-            sessions = df["session_id"].nunique()
-            total_qs = len(df)
-            overall_acc = df["correct"].mean()
-            avg_time = df["time_taken"].mean()
+            if "session_index" not in df.columns:
+                try:
+                    df["session_index"] = df["session_id"].astype(int)
+                except Exception:
+                    uniq = sorted(df["session_id"].unique(), key=lambda x: str(x))
+                    mapping = {sid: i + 1 for i, sid in enumerate(uniq)}
+                    df["session_index"] = df["session_id"].map(mapping)
+
+            # ADAPTIVENESS DIAGNOSTICS
+            diff_map = {"easy": 0, "medium": 1, "hard": 2}
+            def to_index(d):
+                try:
+                    return diff_map.get(str(d).lower(), np.nan)
+                except Exception:
+                    return np.nan
+
+            _diag_df = df.copy()
+            if "difficulty" not in _diag_df.columns:
+                st.info("No 'difficulty' column found — cannot compute adaptiveness diagnostics.")
+            else:
+                _diag_df["diff_idx"] = _diag_df["difficulty"].apply(to_index)
+                sort_key = ["session_index"]
+                if "q_no" in _diag_df.columns:
+                    sort_key.append("q_no")
+                else:
+                    sort_key.append("ts")
+                _diag_df = _diag_df.sort_values(sort_key)
+
+                # next-difficulty per-session (shifted)
+                _diag_df["next_diff_idx"] = _diag_df.groupby("session_index")["diff_idx"].shift(-1)
+                _diag_df["prev_correct"] = _diag_df["correct"]
+                _diag_df["diff_change"] = _diag_df["next_diff_idx"] - _diag_df["diff_idx"]
+
+                # Filter rows that have a next question (drop the last row of each session)
+                valid = _diag_df.dropna(subset=["next_diff_idx", "diff_idx", "prev_correct"])
+
+                def adapt_metrics(df_sub):
+                    wrongs = df_sub[df_sub["prev_correct"].astype(int) == 0]
+                    rights = df_sub[df_sub["prev_correct"].astype(int) == 1]
+                    def frac_makes_easier(rows):
+                        if len(rows) == 0:
+                            return np.nan
+                        return (rows["diff_change"] < 0).sum() / len(rows)
+                    def frac_makes_harder(rows):
+                        if len(rows) == 0:
+                            return np.nan
+                        return (rows["diff_change"] > 0).sum() / len(rows)
+                    return {
+                        "count_rows": len(df_sub),
+                        "when_wrong_make_easier": frac_makes_easier(wrongs),
+                        "when_correct_make_harder": frac_makes_harder(rights),
+                        "avg_diff_change": df_sub["diff_change"].mean()
+                    }
+
+                session_metrics = []
+                for sid, g in valid.groupby("session_index"):
+                    km = adapt_metrics(g)
+                    km["session_index"] = sid
+                    kind = "Unknown"
+                    if "agent_type" in g.columns and pd.notna(g["agent_type"].iloc[0]):
+                        kind = str(g["agent_type"].iloc[0])
+                    else:
+                        try:
+                            jd = json.loads(Path(SESSION_DETAILS_DIR / f"{sid}.json").read_text(encoding="utf-8"))
+                            kind = jd.get("session_type") or jd.get("mode") or kind
+                        except Exception:
+                            pass
+                    km["session_kind"] = kind
+                    session_metrics.append(km)
+                sess_metrics_df = pd.DataFrame(session_metrics).set_index("session_index").sort_index(ascending=False)
+
+                st.markdown("#### Adaptiveness diagnostics (per session)")
+                if not sess_metrics_df.empty:
+                    display = sess_metrics_df.copy()
+                    display["when_wrong_make_easier"] = display["when_wrong_make_easier"].apply(lambda x: f"{(x*100):.1f}%" if pd.notna(x) else "n/a")
+                    display["when_correct_make_harder"] = display["when_correct_make_harder"].apply(lambda x: f"{(x*100):.1f}%" if pd.notna(x) else "n/a")
+                    display["avg_diff_change"] = display["avg_diff_change"].round(3)
+                    st.table(display[["session_kind","count_rows","when_wrong_make_easier","when_correct_make_harder","avg_diff_change"]])
+                else:
+                    st.info("Not enough data to compute adaptiveness diagnostics.")
+
+            # Core metrics
+            sessions = int(df["session_index"].nunique())
+            total_qs = int(len(df))
+            overall_acc = float(df["correct"].mean()) if "correct" in df.columns else 0.0
+            avg_time = float(df["time_taken"].mean()) if "time_taken" in df.columns else 0.0
             col1, col2, col3, col4 = st.columns(4)
-            col1.metric("Assessment sessions", sessions)
+            col1.metric("Sessions", sessions)
             col2.metric("Overall accuracy", f"{overall_acc*100:.2f}%")
             col3.metric("Avg time / question (s)", f"{avg_time:.2f}")
             col4.metric("Questions logged", total_qs)
 
             # Accuracy by difficulty
             st.markdown("### Accuracy by difficulty")
-            acc_by_diff = df.groupby("difficulty")["correct"].mean().reindex(["easy","medium","hard"]).fillna(0)
-            fig, ax = plt.subplots(figsize=(6,3))
-            ax.bar(acc_by_diff.index.str.title(), acc_by_diff.values*100)
-            ax.set_ylabel("Accuracy (%)")
-            for i,v in enumerate(acc_by_diff.values*100):
-                ax.text(i, v+1, f"{v:.1f}%", ha="center")
-            st.pyplot(fig)
+            if "difficulty" in df.columns and "correct" in df.columns:
+                acc_by_diff = df.groupby("difficulty")["correct"].mean().reindex(["easy", "medium", "hard"]).fillna(0)
+                fig, ax = plt.subplots(figsize=(6, 3))
+                ax.bar(acc_by_diff.index.str.title(), acc_by_diff.values * 100)
+                ax.set_ylabel("Accuracy (%)")
+                for i, v in enumerate(acc_by_diff.values * 100):
+                    ax.text(i, v + 1, f"{v:.1f}%", ha="center")
+                st.pyplot(fig)
+                plt.close(fig)
+            else:
+                st.info("Need 'difficulty' and 'correct' columns to plot accuracy by difficulty.")
 
             # Avg reward by difficulty
             st.markdown("### Avg reward by difficulty")
-            reward_by_diff = df.groupby("difficulty")["reward"].mean().reindex(["easy","medium","hard"]).fillna(0)
-            fig2, ax2 = plt.subplots(figsize=(6,3))
-            ax2.bar(reward_by_diff.index.str.title(), reward_by_diff.values)
-            ax2.axhline(0, color="black", linewidth=0.6)
-            ax2.set_ylabel("Avg reward")
-            for i,v in enumerate(reward_by_diff.values):
-                ax2.text(i, v + (0.05 if v>=0 else -0.15), f"{v:.2f}", ha="center")
-            st.pyplot(fig2)
-
-            # Topic weaknesses (map session JSONs -> topic_name)
-            topic_map = {}
-            sd = SD_DIR
-            if sd.exists():
-                for f in sd.glob("*.json"):
-                    try:
-                        jd = json.loads(f.read_text(encoding="utf-8"))
-                        sid = jd.get("session_id")
-                        tname = jd.get("topic_name") or jd.get("topic") or "Unknown"
-                        if sid:
-                            topic_map[sid] = tname
-                    except Exception:
-                        pass
-            df["topic_name"] = df["session_id"].map(topic_map).fillna("Unknown")
-            topic_acc = df.groupby("topic_name")["correct"].mean().sort_values()
-            if len(topic_acc) > 0:
-                st.markdown("### Topics to focus on (lowest accuracy)")
-                to_focus = topic_acc.head(5)
-                st.table((to_focus*100).round(2).rename("Accuracy (%)").to_frame())
-                rec_topic = to_focus.idxmin()
+            if "difficulty" in df.columns and "reward" in df.columns:
+                reward_by_diff = df.groupby("difficulty")["reward"].mean().reindex(["easy", "medium", "hard"]).fillna(0)
+                fig2, ax2 = plt.subplots(figsize=(6, 3))
+                ax2.bar(reward_by_diff.index.str.title(), reward_by_diff.values)
+                ax2.axhline(0, color="black", linewidth=0.6)
+                ax2.set_ylabel("Avg reward")
+                for i, v in enumerate(reward_by_diff.values):
+                    ax2.text(i, v + (0.05 if v >= 0 else -0.15), f"{v:.2f}", ha="center")
+                st.pyplot(fig2)
+                plt.close(fig2)
             else:
-                rec_topic = None
+                st.info("Need 'difficulty' and 'reward' columns to plot rewards by difficulty.")
 
-            # Heatmap: correctness by question position
-            st.markdown("### Where do mistakes happen? (by question position)")
-            max_q = int(df["q_no"].max())
-            heat = np.zeros((max_q,))
-            counts = np.zeros((max_q,))
-            for _, row in df.iterrows():
-                pos = int(row["q_no"]) - 1
-                if 0 <= pos < max_q:
-                    heat[pos] += int(row["correct"])
-                    counts[pos] += 1
-            frac = np.divide(heat, np.maximum(1, counts))
-            fig3, ax3 = plt.subplots(figsize=(8,1.2))
-            ax3.imshow(frac.reshape(1,-1), aspect='auto', cmap='RdYlGn', vmin=0, vmax=1)
-            ax3.set_yticks([])
-            ax3.set_xticks(np.arange(max_q))
-            ax3.set_xlabel("Question position (1..N)")
-            st.pyplot(fig3)
+            # Topics mapping by reading session JSON files (if available)
+            st.markdown("### Topics to focus (lowest accuracy)")
+            topic_map = {}
+            try:
+                if "SESSION_DETAILS_DIR" in globals():
+                    for f in Path(SESSION_DETAILS_DIR).glob("*.json"):
+                        try:
+                            jd = json.loads(f.read_text(encoding="utf-8"))
+                            topic_map[str(jd.get("session_id"))] = jd.get("topic_name", "Unknown")
+                        except Exception:
+                            pass
+                df["topic_name"] = df["session_id"].astype(str).map(topic_map).fillna("Unknown")
+                if "topic_name" in df.columns and "correct" in df.columns:
+                    topic_acc = df.groupby("topic_name")["correct"].mean().sort_values()
+                    if not topic_acc.empty:
+                        st.table((topic_acc.head(6) * 100).round(2).rename("Accuracy (%)").to_frame())
+            except Exception as e:
+                st.write("Could not compute topic map:", e)
 
-            # Personalized recommendations
-            st.markdown("### Personalized recommendation")
+            # ------------------------------
+            # REPLACED: Mistakes by question position (heatmap)
+            # New: Accuracy (%) and Avg time (s) by question position (1..N)
+            # ------------------------------
+            st.markdown("### Accuracy & Avg time by question position")
+            if "q_no" in df.columns and "correct" in df.columns and "time_taken" in df.columns:
+                max_q = int(df["q_no"].max())
+                pos_acc = []
+                pos_time = []
+                pos_counts = []
+                for pos in range(1, max_q+1):
+                    sub = df[df["q_no"] == pos]
+                    if len(sub) == 0:
+                        pos_acc.append(np.nan)
+                        pos_time.append(np.nan)
+                        pos_counts.append(0)
+                    else:
+                        pos_acc.append(sub["correct"].mean() * 100)
+                        pos_time.append(sub["time_taken"].mean())
+                        pos_counts.append(len(sub))
+                x = list(range(1, max_q+1))
+                fig4, ax4 = plt.subplots(figsize=(8, 3))
+                ax4.plot(x, pos_acc, marker="o", linewidth=1.5, label="Accuracy (%)")
+                ax4.set_xlabel("Question position (1..N)")
+                ax4.set_ylabel("Accuracy (%)")
+                ax4.set_xticks(x)
+                ax4.set_ylim(0, 100)
+                ax4.grid(axis="y", linestyle="--", linewidth=0.4)
+
+                ax5 = ax4.twinx()
+                ax5.bar(x, pos_time, alpha=0.25, label="Avg time (s)")
+                ax5.set_ylabel("Avg time (s)")
+
+                # annotate counts lightly
+                for xi, c in zip(x, pos_counts):
+                    ax4.text(xi, 2, f"n={c}", ha="center", va="bottom", fontsize=8, alpha=0.7)
+
+                lines, labels = ax4.get_legend_handles_labels()
+                lines2, labels2 = ax5.get_legend_handles_labels()
+                ax4.legend(lines + lines2, labels + labels2, loc="upper right", fontsize="small")
+                st.pyplot(fig4)
+                plt.close(fig4)
+            else:
+                st.info("Need 'q_no', 'correct' and 'time_taken' columns to show position-wise accuracy/time.")
+
+            # Recommendations
+            st.markdown("### Recommendations")
             recs = []
-            weakest_diff = acc_by_diff.idxmin()
-            weakest_diff_acc = acc_by_diff.min()
-            if weakest_diff_acc < 0.6:
-                recs.append(f"Focus on **{weakest_diff.title()}**-level questions (accuracy {weakest_diff_acc*100:.1f}%).")
-            if rec_topic and rec_topic != "Unknown":
-                recs.append(f"Practice more questions in **{rec_topic}** — your per-topic accuracy is low there.")
-            worst_reward = reward_by_diff.idxmin()
-            recs.append(f"Avoid spending too much time on difficulties that give negative average reward (worst: **{worst_reward.title()}**).")
-            for r in recs[:3]:
+            if "difficulty" in df.columns and "correct" in df.columns:
+                weakest_diff = acc_by_diff.idxmin()
+                weakest_acc = acc_by_diff.min()
+                if weakest_acc < 0.6:
+                    recs.append(f"Practice more **{weakest_diff.title()}**-level questions (accuracy {weakest_acc*100:.1f}%).")
+            if "topic_name" in df.columns and "correct" in df.columns:
+                topic_acc = df.groupby("topic_name")["correct"].mean().sort_values()
+                if not topic_acc.empty:
+                    recs.append(f"Focus on topics: {list(topic_acc.head(3).index)}.")
+            if "difficulty" in df.columns and "reward" in df.columns:
+                worst_reward = reward_by_diff.idxmin()
+                recs.append(f"Reduce time on difficulties that give negative avg reward (worst: **{worst_reward.title()}**).")
+            for r in recs[:4]:
                 st.info(r)
 
-            # Session explorer & PDF
             st.markdown("---")
-            st.subheader("Session explorer & report")
-            sess = df.groupby("session_id").agg(accuracy=("correct","mean"), total_reward=("reward","sum"), questions=("q_no","count")).reset_index().sort_values("questions", ascending=False)
-            sid = st.selectbox("Select session to inspect", options=sess["session_id"].tolist())
-            if sid:
-                sdata = df[df["session_id"]==sid].sort_values("q_no")
-                st.table(sdata[["q_no","difficulty","question","chosen","correct","time_taken","reward"]].reset_index(drop=True))
-                if st.button("Generate PDF for this session"):
-                    try:
-                        pdf_path = generate_session_report(sid)
-                        with open(pdf_path, "rb") as f:
-                            st.download_button("Download PDF report", f.read(), file_name=os.path.basename(pdf_path))
-                    except Exception as e:
-                        st.error(f"PDF generation failed: {e}")
+            st.subheader("Session explorer & report (all sessions)")
 
-            st.markdown("---")
-            st.caption("Tip: repeat the short assessment often to track improvement. Use Q-Card for targeted practice.")
+            sessions_df = df.groupby("session_index").agg(
+                first_ts=("ts", "min"),
+                accuracy=("correct", "mean"),
+                total_reward=("reward", "sum"),
+                questions=("q_no", "count")
+            ).reset_index().sort_values("session_index", ascending=False)
+
+            st.write("Sessions summary:")
+            st.table(sessions_df.rename(columns={
+                "session_index": "Session Index",
+                "first_ts": "First Seen",
+                "accuracy": "Accuracy",
+                "total_reward": "Total Reward",
+                "questions": "Questions"
+            }).assign(**{"Accuracy": lambda dfx: (dfx["Accuracy"]*100).round(2).astype(str) + "%"}))
+
+            if st.button("Generate PDF for ALL sessions (combined)"):
+                try:
+                    all_df = df.copy()
+                    if "session_index" not in all_df.columns:
+                        all_df["session_index"] = all_df["session_id"].astype(str)
+                    cols = ["session_index"] + [c for c in all_df.columns if c != "session_index"]
+                    all_df = all_df[cols]
+                    pdf_path = generate_session_report("all_sessions", all_df, "Mixed")
+                    with open(pdf_path, "rb") as f:
+                        pdf_bytes = f.read()
+                    st.success(f"Combined PDF generated: {Path(pdf_path).name}")
+                    st.download_button("Download combined PDF", data=pdf_bytes, file_name=Path(pdf_path).name, mime="application/pdf")
+                except Exception as e:
+                    st.error(f"Failed to generate combined PDF: {e}")
+
+            # Per-session view
+            for sid in sessions_df["session_index"].tolist():
+                with st.expander(f"Session {sid} — {int(sessions_df[sessions_df['session_index']==sid]['questions'].values[0])} questions — first seen: {sessions_df[sessions_df['session_index']==sid]['first_ts'].values[0]}"):
+                    sdata = df[df["session_index"] == sid].sort_values("q_no" if "q_no" in df.columns else df.columns[0])
+                    def detect_session_kind(session_id: str, sample_df: pd.DataFrame):
+                        for col in ("session_type", "session_kind", "type", "mode", "source", "agent_type"):
+                            if col in sample_df.columns:
+                                vals = sample_df[col].dropna().astype(str).unique()
+                                if len(vals) > 0:
+                                    v = vals[0].lower()
+                                    if "qcard" in v or "q-card" in v or "q_card" in v or "q card" in v:
+                                        return "Q-Card"
+                                    if "quiz" in v:
+                                        return "Quiz"
+                                    return vals[0]
+                        json_path = Path(SESSION_DETAILS_DIR) / f"{session_id}.json"
+                        if json_path.exists():
+                            try:
+                                jd = json.loads(json_path.read_text(encoding="utf-8"))
+                                for key in ("session_type", "session_kind", "mode", "type", "is_qcard", "kind"):
+                                    if key in jd:
+                                        val = str(jd.get(key))
+                                        v = val.lower()
+                                        if "qcard" in v or "q-card" in v or "q card" in v:
+                                            return "Q-Card"
+                                        if "quiz" in v:
+                                            return "Quiz"
+                                        return val
+                            except Exception:
+                                pass
+                        text_blob = " ".join(sample_df.astype(str).values.flatten()).lower()
+                        if "q-card" in text_blob or "qcard" in text_blob:
+                            return "Q-Card"
+                        return "Unknown"
+
+                    session_kind = detect_session_kind(str(sid), sdata)
+                    show_cols = [c for c in ["q_no", "difficulty", "question", "chosen", "correct", "time_taken", "reward", "agent_type", "model_name", "topic_name"] if c in sdata.columns]
+                    st.write(f"Detected type: **{session_kind}**")
+                    st.table(sdata[show_cols].reset_index(drop=True))
+
+                    if st.button(f"Generate PDF for session {sid}", key=f"pdf_sess_{sid}"):
+                        try:
+                            pdf_path = generate_session_report(str(sid), sdata, session_kind)
+                            with open(pdf_path, "rb") as f:
+                                pdf_bytes = f.read()
+                            st.success(f"PDF generated for session {sid}: {Path(pdf_path).name}")
+                            st.download_button(f"Download PDF (session {sid})", data=pdf_bytes, file_name=Path(pdf_path).name, mime="application/pdf", key=f"dl_{sid}")
+                        except Exception as e:
+                            st.error(f"Failed to generate PDF for session {sid}: {e}")
+
+# EOF

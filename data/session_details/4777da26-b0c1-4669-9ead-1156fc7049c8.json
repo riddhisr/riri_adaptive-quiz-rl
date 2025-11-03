@@ -1,0 +1,19 @@
+{
+  "session_id": "4777da26-b0c1-4669-9ead-1156fc7049c8",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:40:19.563586",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:40:19.566026",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "What was the name of the first Bulgarian personal computer?",
+      "chosen": "IZOT 1030",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

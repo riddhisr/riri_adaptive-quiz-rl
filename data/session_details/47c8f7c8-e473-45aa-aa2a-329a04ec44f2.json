@@ -1,0 +1,67 @@
+{
+  "session_id": "47c8f7c8-e473-45aa-aa2a-329a04ec44f2",
+  "user_id": "You",
+  "start_time": "2025-11-02T05:38:03.341600",
+  "interactions": [
+    {
+      "ts": "2025-11-02T05:38:11.311791",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What is the alphanumeric representation of the imaginary number?",
+      "chosen": "e",
+      "correct": false,
+      "time_taken": 5.624632120132446,
+      "reward": -1.2812316060066222,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T05:38:21.883561",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "In a normal distribution, 95% of the data lies within how many standard deviations of the mean?",
+      "chosen": "4",
+      "correct": false,
+      "time_taken": 4.383583068847656,
+      "reward": -1.2191791534423828,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T05:38:30.908163",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "What prime number comes next after 19?",
+      "chosen": "23",
+      "correct": true,
+      "time_taken": 6.91736912727356,
+      "reward": 0.15413154363632203,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T05:38:39.230300",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "What prime number comes next after 19?",
+      "chosen": "23",
+      "correct": true,
+      "time_taken": 15.245733976364136,
+      "reward": 0.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T05:39:02.979632",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which of the following dice is not a platonic solid?",
+      "chosen": "20-sided die",
+      "correct": false,
+      "time_taken": 9.203391075134277,
+      "reward": -1.4601695537567139,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

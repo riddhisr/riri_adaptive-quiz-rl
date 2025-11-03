@@ -1,0 +1,67 @@
+{
+  "session_id": "4b261692-959d-4a1f-b5cc-422f0e4109b0",
+  "user_id": "You",
+  "start_time": "2025-11-02T06:13:22.653881",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:13:55.128962",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In the complex plane, multiplying a given function by i rotates it anti-clockwise by how many degrees?",
+      "chosen": "90",
+      "correct": true,
+      "time_taken": 30.74086904525757,
+      "reward": 0.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:14:01.480407",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "How many degrees make a full circle?",
+      "chosen": "360",
+      "correct": true,
+      "time_taken": 3.384734869003296,
+      "reward": 0.3307632565498352,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:14:41.340544",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "How many books are in Euclid's Elements of Geometry?",
+      "chosen": "8",
+      "correct": false,
+      "time_taken": 35.56713533401489,
+      "reward": -1.5,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:14:49.519307",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "What shape does sin(x) or cos(x) make on a graph?",
+      "chosen": "Waves",
+      "correct": true,
+      "time_taken": 4.008049011230469,
+      "reward": 0.7995975494384766,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T06:14:58.034393",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "What shape does sin(x) or cos(x) make on a graph?",
+      "chosen": "Waves",
+      "correct": true,
+      "time_taken": 12.522978782653809,
+      "reward": 1.0,
+      "agent_type": "Heuristic",
+      "model_name": ""
+    }
+  ]
+}

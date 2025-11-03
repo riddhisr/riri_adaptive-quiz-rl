@@ -1,0 +1,67 @@
+{
+  "session_id": "ddd53eb8-6bc0-4bae-9b0b-9dbef78b4ed4",
+  "user_id": "You",
+  "start_time": "2025-11-02T04:34:37.921402",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:34:47.779940",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "In a normal distribution, 95% of the data lies within how many standard deviations of the mean?",
+      "chosen": "1",
+      "correct": false,
+      "time_taken": 8.612218141555786,
+      "reward": -1.4306109070777893,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:34:55.540962",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "What is the equation for the area of a sphere?",
+      "chosen": "(1/3)\u03c0hr^2",
+      "correct": false,
+      "time_taken": 5.371985197067261,
+      "reward": -0.7685992598533631,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:35:00.544984",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "What is the correct order of operations for solving equations?",
+      "chosen": "Parentheses, Exponents, Multiplication, Division, Addition, Subtraction",
+      "correct": true,
+      "time_taken": 1.7550241947174072,
+      "reward": 0.41224879026412964,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:35:05.726793",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "What is the plane curve proposed by Descartes to challenge Fermat's extremum-finding techniques called?",
+      "chosen": "Folium of Descartes",
+      "correct": true,
+      "time_taken": 2.707087278366089,
+      "reward": 1.3646456360816956,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:35:13.418947",
+      "q_no": 5,
+      "difficulty": "easy",
+      "question": "The metric prefix \"atto-\" makes a measurement how much smaller than the base unit?",
+      "chosen": "One Quintillionth",
+      "correct": true,
+      "time_taken": 4.611327886581421,
+      "reward": 0.26943360567092894,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

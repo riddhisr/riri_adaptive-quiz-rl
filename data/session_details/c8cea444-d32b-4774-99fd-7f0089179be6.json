@@ -1,0 +1,55 @@
+{
+  "session_id": "c8cea444-d32b-4774-99fd-7f0089179be6",
+  "user_id": "You",
+  "start_time": "2025-11-01T17:16:43.962268",
+  "interactions": [
+    {
+      "ts": "2025-11-01T17:17:08.788633",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "What common name is given to the medial condition, tibial stress syndrome (MTSS)?",
+      "chosen": "Tennis Elbow",
+      "correct": false,
+      "time_taken": 23.701842069625854,
+      "reward": -2.0,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T17:17:12.515161",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "The medial meniscus forms which part of what joint in the human body?",
+      "chosen": "Knee",
+      "correct": true,
+      "time_taken": 2.5614583492279053,
+      "reward": 0.8719270825386047,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T17:17:18.504773",
+      "q_no": 3,
+      "difficulty": "medium",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 5.201999187469482,
+      "reward": 0.7399000406265259,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T17:17:21.532881",
+      "q_no": 4,
+      "difficulty": "medium",
+      "question": "Which portion of the Marijuana plant produces the psychoactive substance known as THC?",
+      "chosen": "Root Ball",
+      "correct": false,
+      "time_taken": 2.146723985671997,
+      "reward": -1.1073361992836,
+      "agent_type": "Adaptive",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

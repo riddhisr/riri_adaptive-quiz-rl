@@ -1,0 +1,67 @@
+{
+  "session_id": "3c635d38-ff08-445f-a7dd-fe297783ee26",
+  "user_id": "You",
+  "start_time": "2025-11-01T20:41:25.732683",
+  "interactions": [
+    {
+      "ts": "2025-11-01T20:41:39.057739",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "How many zeptometres are inside one femtometre?",
+      "chosen": "1,000,000,000",
+      "correct": false,
+      "time_taken": 12.351051807403564,
+      "reward": -2.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:42:13.127201",
+      "q_no": 2,
+      "difficulty": "medium",
+      "question": "What is the derivative of sin(x)",
+      "chosen": "-cos(x)",
+      "correct": false,
+      "time_taken": 20.046267986297607,
+      "reward": -1.5,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:42:25.453029",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "Which of these numbers is closest to the total number of possible states for an army standard Enigma Machine?",
+      "chosen": "1.58 x 10^20",
+      "correct": true,
+      "time_taken": 4.693403005599976,
+      "reward": 1.2653298497200012,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:42:34.872834",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "In Roman Numerals, what does XL equate to?",
+      "chosen": "90",
+      "correct": false,
+      "time_taken": 6.409175157546997,
+      "reward": -0.8204587578773499,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-01T20:42:44.709912",
+      "q_no": 5,
+      "difficulty": "easy",
+      "question": "What type of angle is greater than 90\u00b0?",
+      "chosen": "Obtuse",
+      "correct": true,
+      "time_taken": 6.323975086212158,
+      "reward": 0.1838012456893921,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

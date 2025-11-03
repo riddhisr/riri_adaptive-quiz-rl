@@ -1,0 +1,19 @@
+{
+  "session_id": "0d79b8e7-bd59-4575-8d3b-1b2199c23e55",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:15:59.962538",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:15:59.964803",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What is known as \"the brain\" of the Computer?",
+      "chosen": "Central Processing Unit",
+      "correct": true,
+      "time_taken": 0.0,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

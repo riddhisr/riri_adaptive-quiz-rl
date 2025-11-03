@@ -1,0 +1,67 @@
+{
+  "session_id": "f03218cd-78d6-43a4-9db6-63797a45c499",
+  "user_id": "You",
+  "start_time": "2025-11-02T04:51:26.845149",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:51:34.707425",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What is the derivative of sin(x)",
+      "chosen": "cos(x)",
+      "correct": true,
+      "time_taken": 5.078002214431763,
+      "reward": 0.7460998892784119,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:51:41.775197",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "What is the smallest number that can be expressed as the sum of two positive cubes in two different ways?",
+      "chosen": "4104",
+      "correct": false,
+      "time_taken": 5.007836818695068,
+      "reward": -1.7503918409347534,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:51:48.407863",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "What is the smallest number that can be expressed as the sum of two positive cubes in two different ways?",
+      "chosen": "1729",
+      "correct": true,
+      "time_taken": 11.544355154037476,
+      "reward": 0.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:51:54.078582",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "What is the smallest number that can be expressed as the sum of two positive cubes in two different ways?",
+      "chosen": "1729",
+      "correct": true,
+      "time_taken": 17.309712886810303,
+      "reward": 0.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:51:58.616390",
+      "q_no": 5,
+      "difficulty": "easy",
+      "question": "The metric prefix \"atto-\" makes a measurement how much smaller than the base unit?",
+      "chosen": "One Quadrillionth",
+      "correct": false,
+      "time_taken": 2.476522922515869,
+      "reward": -0.6238261461257935,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

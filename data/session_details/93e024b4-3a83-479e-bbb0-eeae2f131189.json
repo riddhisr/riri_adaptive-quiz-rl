@@ -1,0 +1,19 @@
+{
+  "session_id": "93e024b4-3a83-479e-bbb0-eeae2f131189",
+  "user_id": "practice",
+  "start_time": "2025-11-03T08:40:46.974493",
+  "interactions": [
+    {
+      "ts": "2025-11-03T08:40:46.975695",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "The Electron computer was released in Britain during 1983 for the home computing market, by which company? ",
+      "chosen": "Sinclair Research",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

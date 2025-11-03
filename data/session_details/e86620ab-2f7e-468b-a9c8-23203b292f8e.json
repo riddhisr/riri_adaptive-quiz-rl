@@ -1,0 +1,19 @@
+{
+  "session_id": "e86620ab-2f7e-468b-a9c8-23203b292f8e",
+  "user_id": "practice",
+  "start_time": "2025-11-01T18:12:29.810100",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:12:29.812366",
+      "q_no": 6,
+      "difficulty": "easy",
+      "question": "How many sides does a heptagon have?",
+      "chosen": "7",
+      "correct": true,
+      "time_taken": 8.530500888824463,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

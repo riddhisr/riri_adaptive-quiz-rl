@@ -1,0 +1,67 @@
+{
+  "session_id": "81fc7866-9f9d-4e8c-8a09-9233b4658169",
+  "user_id": "You",
+  "start_time": "2025-11-02T04:21:39.194901",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:21:42.959536",
+      "q_no": 1,
+      "difficulty": "medium",
+      "question": "What is the Roman numeral for 500?",
+      "chosen": "X",
+      "correct": false,
+      "time_taken": 2.790102958679199,
+      "reward": -1.13950514793396,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:21:43.804482",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "What is the Roman numeral for 500?",
+      "chosen": "X",
+      "correct": false,
+      "time_taken": 3.635262966156006,
+      "reward": -1.6817631483078004,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:21:49.665959",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "Which of the following famous mathematicians died in a duel at the age of 20?",
+      "chosen": "Abel",
+      "correct": false,
+      "time_taken": 3.912957191467285,
+      "reward": -1.6956478595733642,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:21:53.054158",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "Which of the following famous mathematicians died in a duel at the age of 20?",
+      "chosen": "Abel",
+      "correct": false,
+      "time_taken": 7.301156282424927,
+      "reward": -1.8650578141212464,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:21:56.090194",
+      "q_no": 5,
+      "difficulty": "easy",
+      "question": "Which of the following famous mathematicians died in a duel at the age of 20?",
+      "chosen": "Galois",
+      "correct": true,
+      "time_taken": 10.337215423583984,
+      "reward": 0.0,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

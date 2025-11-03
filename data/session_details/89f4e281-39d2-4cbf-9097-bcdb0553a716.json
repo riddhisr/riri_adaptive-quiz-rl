@@ -1,0 +1,19 @@
+{
+  "session_id": "89f4e281-39d2-4cbf-9097-bcdb0553a716",
+  "user_id": "practice",
+  "start_time": "2025-11-02T04:36:47.429993",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:36:47.431488",
+      "q_no": 0,
+      "difficulty": "medium",
+      "question": "Which coding language was the #1 programming language in terms of usage on GitHub in 2015?",
+      "chosen": "JavaScript",
+      "correct": true,
+      "time_taken": 0.0,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

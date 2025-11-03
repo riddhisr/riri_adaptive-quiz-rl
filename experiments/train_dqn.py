@@ -1,124 +1,157 @@
-# # experiments/train_dqn.py
-# import argparse
-# import numpy as np
-# import os
-# from env.quiz_env import QuizEnv
-# from agents.dqn_agent import DQNAgent
-# import matplotlib.pyplot as plt
-# import csv
-
-# def train(episodes=2000, max_q=10, save_path=None, report_dir="experiments"):
-#     os.makedirs(os.path.dirname(save_path) if save_path else "models", exist_ok=True)
-#     os.makedirs(report_dir, exist_ok=True)
-
-#     env = QuizEnv(user_profile=None, max_q=max_q)
-#     agent = DQNAgent(n_state=4, n_actions=3)
-
-#     rewards = []
-#     for ep in range(episodes):
-#         s = env.reset()
-#         done = False
-#         total = 0.0
-#         while not done:
-#             a = agent.select(s)
-#             ns, r, done, info = env.step(a)
-#             agent.store(s, a, r, ns, done)
-#             agent.learn()
-#             s = ns
-#             total += r
-#         rewards.append(total)
-#         if (ep + 1) % 100 == 0 or ep == 0:
-#             print(f"Episode {ep+1}/{episodes} - reward: {np.mean(rewards[-100:]):.3f} - eps: {agent.eps:.3f}")
-
-#     # save rewards csv
-#     csv_path = os.path.join(report_dir, "rewards.csv")
-#     with open(csv_path, "w", newline="") as f:
-#         writer = csv.writer(f)
-#         writer.writerow(["episode", "reward"])
-#         for i, r in enumerate(rewards, 1):
-#             writer.writerow([i, r])
-#     print(f"Saved rewards CSV -> {csv_path}")
-
-#     # plot and save
-#     plt.figure(figsize=(8,4))
-#     plt.plot(rewards, label="episode reward")
-#     plt.xlabel('episode')
-#     plt.ylabel('reward')
-#     plt.title('Training rewards')
-#     plt.grid(alpha=0.3)
-#     plt.legend()
-#     png_path = os.path.join(report_dir, "rewards.png")
-#     plt.tight_layout()
-#     plt.savefig(png_path)
-#     print(f"Saved rewards plot -> {png_path}")
-
-#     # save model
-#     if save_path:
-#         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-#         agent.save(save_path)
-#         print(f"Saved model -> {save_path}")
-
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--episodes', type=int, default=2000)
-#     parser.add_argument('--max_q', type=int, default=10)
-#     parser.add_argument('--save', type=str, default='models/dqn.pth')
-#     parser.add_argument('--report_dir', type=str, default='experiments')
-#     args = parser.parse_args()
-#     train(args.episodes, args.max_q, args.save, args.report_dir)
-
-# experiments/train_dqn.py
-import argparse, os, csv
+# train_dqn.py
+import random
 import numpy as np
-from env.quiz_env import QuizEnv
-from agents.dqn_agent import DQNAgent
-import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from collections import deque, namedtuple
+from pathlib import Path
+from tqdm import trange
+import os
+import math
 
-def train(episodes=2000, max_q=10, save_path="models/dqn.pth", report_dir="experiments"):
-    os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
-    os.makedirs(report_dir, exist_ok=True)
-    env = QuizEnv(user_profile=None, max_q=max_q)
-    agent = DQNAgent()
-    rewards = []
-    for ep in range(episodes):
+MODEL_PATH = Path("models/dqn.pth")
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+Transition = namedtuple("Transition", ("state", "action", "reward", "next_state", "done"))
+
+class ReplayBuffer:
+    def __init__(self, capacity=100000):
+        self.buf = deque(maxlen=capacity)
+    def push(self, *args):
+        self.buf.append(Transition(*args))
+    def sample(self, batch_size):
+        batch = random.sample(self.buf, batch_size)
+        return Transition(*zip(*batch))
+    def __len__(self):
+        return len(self.buf)
+
+class QNetwork(nn.Module):
+    def __init__(self, in_dim=4, hidden=128, out_dim=3):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(in_dim, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, out_dim)
+        )
+    def forward(self, x):
+        return self.net(x)
+
+class DQNAgent:
+    def __init__(self, state_dim=4, action_dim=3, lr=1e-3, gamma=0.99, batch_size=64, buffer_size=50000, tau=1e-3):
+        self.device = DEVICE
+        self.q = QNetwork(in_dim=state_dim, out_dim=action_dim).to(self.device)
+        self.q_target = QNetwork(in_dim=state_dim, out_dim=action_dim).to(self.device)
+        self.q_target.load_state_dict(self.q.state_dict())
+        self.optim = optim.Adam(self.q.parameters(), lr=lr)
+        self.gamma = gamma
+        self.batch_size = batch_size
+        self.buffer = ReplayBuffer(buffer_size)
+        self.action_dim = action_dim
+        self.tau = tau
+        self.total_steps = 0
+        self.eps_start = 1.0
+        self.eps_end = 0.05
+        self.eps_decay = 20000  # steps
+
+    def select(self, state, eval_mode=False):
+        # state: numpy array
+        eps = self.epsilon()
+        if eval_mode or random.random() > eps:
+            with torch.no_grad():
+                x = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+                qvals = self.q(x)
+                a = int(qvals.argmax(dim=1).item())
+        else:
+            a = random.randrange(self.action_dim)
+        return a
+
+    def epsilon(self):
+        # linear/exponential schedule
+        return max(self.eps_end, self.eps_start - (self.total_steps / self.eps_decay) * (self.eps_start - self.eps_end))
+
+    def store(self, s, a, r, ns, done):
+        self.buffer.push(np.array(s, dtype=np.float32), int(a), float(r), np.array(ns, dtype=np.float32), bool(done))
+        self.total_steps += 1
+
+    def learn(self, updates=1):
+        if len(self.buffer) < self.batch_size:
+            return
+        for _ in range(updates):
+            batch = self.buffer.sample(self.batch_size)
+            states = torch.tensor(np.stack(batch.state), dtype=torch.float32, device=self.device)
+            actions = torch.tensor(batch.action, dtype=torch.long, device=self.device).unsqueeze(1)
+            rewards = torch.tensor(batch.reward, dtype=torch.float32, device=self.device).unsqueeze(1)
+            next_states = torch.tensor(np.stack(batch.next_state), dtype=torch.float32, device=self.device)
+            dones = torch.tensor(batch.done, dtype=torch.float32, device=self.device).unsqueeze(1)
+
+            q_values = self.q(states).gather(1, actions)
+            with torch.no_grad():
+                q_next = self.q_target(next_states).max(1)[0].unsqueeze(1)
+                q_target = rewards + (1.0 - dones) * (self.gamma * q_next)
+
+            loss = nn.functional.mse_loss(q_values, q_target)
+
+            self.optim.zero_grad()
+            loss.backward()
+            self.optim.step()
+
+            # soft update
+            for p, p_target in zip(self.q.parameters(), self.q_target.parameters()):
+                p_target.data.copy_(self.tau * p.data + (1.0 - self.tau) * p_target.data)
+
+    def save(self, path=MODEL_PATH):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(self.q.state_dict(), path)
+    def load(self, path=MODEL_PATH):
+        self.q.load_state_dict(torch.load(path, map_location=self.device))
+        self.q_target.load_state_dict(self.q.state_dict())
+
+# ------------- Training loop (example) -------------
+# NOTE: adapt the env lines below to your environment.
+# The example assumes env exposes: reset() -> state(np array), step(action)->(next_state, reward, done, info)
+
+def train(env, episodes=2000, max_steps=200, eval_every=100, save_every=200):
+    agent = DQNAgent(state_dim=4, action_dim=3)
+    best_avg = -1e9
+    for ep in range(1, episodes+1):
         s = env.reset()
-        done = False
-        total = 0.0
-        while not done:
+        total_rew = 0.0
+        for t in range(max_steps):
             a = agent.select(s)
             ns, r, done, info = env.step(a)
-            agent.store(s,a,r,ns,done)
+            agent.store(s, a, r, ns, done)
             agent.learn()
             s = ns
-            total += r
-        rewards.append(total)
-        if (ep+1) % 100 == 0:
-            print(f"Episode {ep+1}/{episodes} - mean last100: {np.mean(rewards[-100:]):.3f} - eps: {agent.eps:.3f}")
-    # save CSV
-    csv_path = os.path.join(report_dir, "rewards.csv")
-    with open(csv_path,"w",newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["episode","reward"])
-        for i,r in enumerate(rewards,1):
-            w.writerow([i,r])
-    # plot
-    png_path = os.path.join(report_dir, "rewards.png")
-    plt.figure(figsize=(8,4))
-    plt.plot(rewards)
-    plt.xlabel("episode")
-    plt.ylabel("reward")
-    plt.tight_layout()
-    plt.savefig(png_path)
-    # save model
-    agent.save(save_path)
-    print("Saved model to", save_path)
-    print("Saved rewards CSV and PNG to", report_dir)
+            total_rew += r
+            if done:
+                break
+        # periodic eval (play 10 episodes greedily)
+        if ep % eval_every == 0:
+            avg_rew = 0.0
+            for _ in range(10):
+                ss = env.reset()
+                rsum = 0.0
+                for _ in range(max_steps):
+                    aa = agent.select(ss, eval_mode=True)
+                    ss, rr, done, _ = env.step(aa)
+                    rsum += rr
+                    if done:
+                        break
+                avg_rew += rsum
+            avg_rew /= 10.0
+            print(f"Episode {ep} train_reward={total_rew:.2f} eval_avg={avg_rew:.2f} eps={agent.epsilon():.3f}")
+            if avg_rew > best_avg:
+                best_avg = avg_rew
+                agent.save()
+                print("Saved best model", MODEL_PATH)
+        if ep % save_every == 0:
+            agent.save()
+    agent.save()
+    return agent
 
+# If you want to run this script directly, you must provide an `env` object.
 if __name__ == "__main__":
-    p = argparse.ArgumentParser()
-    p.add_argument("--episodes", type=int, default=2000)
-    p.add_argument("--max_q", type=int, default=10)
-    p.add_argument("--save", type=str, default="models/dqn.pth")
-    p.add_argument("--report_dir", type=str, default="experiments")
-    args = p.parse_args()
-    train(args.episodes, args.max_q, args.save, args.report_dir)
+    print("This script implements DQN training. Import train(env) and call with your environment.")

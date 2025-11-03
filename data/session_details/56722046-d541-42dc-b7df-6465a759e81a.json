@@ -1,0 +1,19 @@
+{
+  "session_id": "56722046-d541-42dc-b7df-6465a759e81a",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:15:53.325921",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:15:53.328895",
+      "q_no": 0,
+      "difficulty": "medium",
+      "question": "What is known as \"the brain\" of the Computer?",
+      "chosen": "Keyboard",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

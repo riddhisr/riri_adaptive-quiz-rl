@@ -1,0 +1,67 @@
+{
+  "session_id": "0adc0a1a-cdb5-4682-b1c5-5878f926970a",
+  "user_id": "You",
+  "start_time": "2025-11-02T03:55:26.851469",
+  "interactions": [
+    {
+      "ts": "2025-11-02T03:55:33.610961",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "How many sides does a heptagon have?",
+      "chosen": "7",
+      "correct": true,
+      "time_taken": 5.388500928878784,
+      "reward": 0.23057495355606078,
+      "agent_type": "Random",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T03:55:44.289882",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "What is the equation for the area of a sphere?",
+      "chosen": "(4/3)\u03c0r^3",
+      "correct": true,
+      "time_taken": 8.772687911987305,
+      "reward": 0.061365604400634766,
+      "agent_type": "Random",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T03:55:53.913981",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "Which of these did mathematician Leonhard Euler NOT develop?",
+      "chosen": "A method of solving first-order differential equations",
+      "correct": false,
+      "time_taken": 5.466460227966309,
+      "reward": -1.7733230113983154,
+      "agent_type": "Random",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T03:56:01.170749",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "How many sides does a trapezium have?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 4.343510866165161,
+      "reward": 0.28282445669174194,
+      "agent_type": "Random",
+      "model_name": ""
+    },
+    {
+      "ts": "2025-11-02T03:56:20.541344",
+      "q_no": 5,
+      "difficulty": "hard",
+      "question": "What is the smallest number that can be expressed as the sum of two positive cubes in two different ways?",
+      "chosen": "91",
+      "correct": false,
+      "time_taken": 15.541252136230469,
+      "reward": -2.0,
+      "agent_type": "Random",
+      "model_name": ""
+    }
+  ]
+}

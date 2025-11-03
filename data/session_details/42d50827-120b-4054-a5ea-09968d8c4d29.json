@@ -1,0 +1,67 @@
+{
+  "session_id": "42d50827-120b-4054-a5ea-09968d8c4d29",
+  "user_id": "Anya",
+  "start_time": "2025-11-02T04:10:28.098709",
+  "interactions": [
+    {
+      "ts": "2025-11-02T04:10:33.256841",
+      "q_no": 1,
+      "difficulty": "hard",
+      "question": "What was the name of the first Bulgarian personal computer?",
+      "chosen": "IMKO-1",
+      "correct": true,
+      "time_taken": 1.6067922115325928,
+      "reward": 1.4196603894233704,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:10:37.676379",
+      "q_no": 2,
+      "difficulty": "hard",
+      "question": "What was the name of the first Bulgarian personal computer?",
+      "chosen": "IZOT 1030",
+      "correct": false,
+      "time_taken": 6.024883270263672,
+      "reward": -1.8012441635131835,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:10:46.892375",
+      "q_no": 3,
+      "difficulty": "hard",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "4",
+      "correct": true,
+      "time_taken": 5.184115171432495,
+      "reward": 1.2407942414283752,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:10:53.008606",
+      "q_no": 4,
+      "difficulty": "easy",
+      "question": "Which company was established on April 1st, 1976 by Steve Jobs, Steve Wozniak and Ronald Wayne?",
+      "chosen": "Commodore",
+      "correct": false,
+      "time_taken": 3.2789359092712402,
+      "reward": -0.6639467954635621,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    },
+    {
+      "ts": "2025-11-02T04:10:58.208865",
+      "q_no": 5,
+      "difficulty": "medium",
+      "question": "Which company was established on April 1st, 1976 by Steve Jobs, Steve Wozniak and Ronald Wayne?",
+      "chosen": "Microsoft",
+      "correct": false,
+      "time_taken": 8.479615926742554,
+      "reward": -1.4239807963371276,
+      "agent_type": "DQN",
+      "model_name": "dqn.pth"
+    }
+  ]
+}

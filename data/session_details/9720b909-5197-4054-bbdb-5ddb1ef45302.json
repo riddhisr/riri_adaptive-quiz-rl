@@ -1,0 +1,19 @@
+{
+  "session_id": "9720b909-5197-4054-bbdb-5ddb1ef45302",
+  "user_id": "practice",
+  "start_time": "2025-11-01T18:12:00.989263",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:12:00.990920",
+      "q_no": 3,
+      "difficulty": "easy",
+      "question": "What is the symbol for Displacement?",
+      "chosen": "\u0394r",
+      "correct": true,
+      "time_taken": 11.82834506034851,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

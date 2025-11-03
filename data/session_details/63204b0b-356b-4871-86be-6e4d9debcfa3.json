@@ -1,0 +1,19 @@
+{
+  "session_id": "63204b0b-356b-4871-86be-6e4d9debcfa3",
+  "user_id": "practice",
+  "start_time": "2025-11-02T06:40:30.807907",
+  "interactions": [
+    {
+      "ts": "2025-11-02T06:40:30.810565",
+      "q_no": 4,
+      "difficulty": "hard",
+      "question": "Australia, Japan, and Southeast Asia are in which ITU Region?",
+      "chosen": "Region 3",
+      "correct": true,
+      "time_taken": 0.0,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

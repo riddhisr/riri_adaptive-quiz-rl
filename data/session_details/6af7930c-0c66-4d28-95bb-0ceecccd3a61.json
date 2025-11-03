@@ -1,0 +1,19 @@
+{
+  "session_id": "6af7930c-0c66-4d28-95bb-0ceecccd3a61",
+  "user_id": "practice",
+  "start_time": "2025-11-03T08:40:36.835784",
+  "interactions": [
+    {
+      "ts": "2025-11-03T08:40:36.837416",
+      "q_no": 2,
+      "difficulty": "easy",
+      "question": "The Electron computer was released in Britain during 1983 for the home computing market, by which company? ",
+      "chosen": "Amstrad PLC",
+      "correct": false,
+      "time_taken": 0.0,
+      "reward": -0.5,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

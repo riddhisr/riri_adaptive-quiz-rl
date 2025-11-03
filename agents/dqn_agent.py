@@ -1,91 +1,106 @@
 # agents/dqn_agent.py
 import random
-from collections import deque
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from collections import deque, namedtuple
+from pathlib import Path
 
-DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+MODEL_PATH = Path("models/dqn.pth")
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-class DQNetwork(nn.Module):
-    def __init__(self, n_in, n_actions):
+Transition = namedtuple("Transition", ("state", "action", "reward", "next_state", "done"))
+
+class ReplayBuffer:
+    def __init__(self, capacity=50000):
+        self.buf = deque(maxlen=capacity)
+    def push(self, *args):
+        self.buf.append(Transition(*args))
+    def sample(self, batch_size):
+        batch = random.sample(self.buf, batch_size)
+        return Transition(*zip(*batch))
+    def __len__(self):
+        return len(self.buf)
+
+class QNetwork(nn.Module):
+    def __init__(self, in_dim=4, hidden=128, out_dim=3):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(n_in, 64),
+            nn.Linear(in_dim, hidden),
             nn.ReLU(),
-            nn.Linear(64, 64),
+            nn.Linear(hidden, hidden),
             nn.ReLU(),
-            nn.Linear(64, n_actions)
+            nn.Linear(hidden, out_dim)
         )
     def forward(self, x):
         return self.net(x)
 
 class DQNAgent:
-    def __init__(self, n_state=4, n_actions=3, lr=1e-3, gamma=0.99, buffer_size=10000):
-        self.n_actions = n_actions
+    def __init__(self, state_dim=4, action_dim=3, lr=1e-3, gamma=0.99, batch_size=64, buffer_size=50000, tau=1e-3):
+        self.device = DEVICE
+        self.q = QNetwork(in_dim=state_dim, out_dim=action_dim).to(self.device)
+        self.q_target = QNetwork(in_dim=state_dim, out_dim=action_dim).to(self.device)
+        self.q_target.load_state_dict(self.q.state_dict())
+        self.optim = optim.Adam(self.q.parameters(), lr=lr)
         self.gamma = gamma
-        self.net = DQNetwork(n_state, n_actions).to(DEVICE)
-        self.target = DQNetwork(n_state, n_actions).to(DEVICE)
-        self.target.load_state_dict(self.net.state_dict())
-        self.optim = optim.Adam(self.net.parameters(), lr=lr)
-        self.replay = deque(maxlen=buffer_size)
-        self.batch_size = 64
-        self.eps = 1.0
-        self.eps_min = 0.05
-        self.eps_decay = 0.995
-        self.update_target_steps = 500
-        self.step_count = 0
+        self.batch_size = batch_size
+        self.buffer = ReplayBuffer(buffer_size)
+        self.action_dim = action_dim
+        self.tau = tau
+        self.total_steps = 0
+        self.eps_start = 1.0
+        self.eps_end = 0.05
+        self.eps_decay = 20000
 
-    def select(self, state):
-        if random.random() < self.eps:
-            return random.randrange(self.n_actions)
-        state_t = torch.FloatTensor(state).unsqueeze(0).to(DEVICE)
-        with torch.no_grad():
-            q = self.net(state_t)
-            return int(q.argmax().item())
+    def select(self, state, eval_mode=False):
+        eps = self.epsilon()
+        if eval_mode or random.random() > eps:
+            try:
+                with torch.no_grad():
+                    x = torch.tensor(np.array(state, dtype=np.float32)).unsqueeze(0).to(self.device)
+                    qvals = self.q(x)
+                    a = int(qvals.argmax(dim=1).item())
+                return a
+            except Exception:
+                return int(random.randrange(self.action_dim))
+        else:
+            return int(random.randrange(self.action_dim))
 
-    def store(self, s,a,r,ns,done):
-        self.replay.append((s,a,r,ns,done))
-        self.step_count += 1
-        if self.step_count % self.update_target_steps == 0:
-            self.target.load_state_dict(self.net.state_dict())
+    def epsilon(self):
+        return max(self.eps_end, self.eps_start - (self.total_steps / self.eps_decay) * (self.eps_start - self.eps_end))
 
-    def sample(self):
-        import random
-        batch = random.sample(self.replay, min(len(self.replay), self.batch_size))
-        s,a,r,ns,done = zip(*batch)
-        return np.array(s), np.array(a), np.array(r), np.array(ns), np.array(done)
+    def store(self, s, a, r, ns, done):
+        self.buffer.push(np.array(s, dtype=np.float32), int(a), float(r), np.array(ns, dtype=np.float32), bool(done))
+        self.total_steps += 1
 
-    def learn(self):
-        if len(self.replay) < 128:
+    def learn(self, updates=1):
+        if len(self.buffer) < self.batch_size:
             return
-        s,a,r,ns,done = self.sample()
-        s_v = torch.FloatTensor(s).to(DEVICE)
-        ns_v = torch.FloatTensor(ns).to(DEVICE)
-        a_v = torch.LongTensor(a).to(DEVICE)
-        r_v = torch.FloatTensor(r).to(DEVICE)
-        done_mask = torch.BoolTensor(done).to(DEVICE)
+        for _ in range(updates):
+            batch = self.buffer.sample(self.batch_size)
+            states = torch.tensor(np.stack(batch.state), dtype=torch.float32, device=self.device)
+            actions = torch.tensor(batch.action, dtype=torch.long, device=self.device).unsqueeze(1)
+            rewards = torch.tensor(batch.reward, dtype=torch.float32, device=self.device).unsqueeze(1)
+            next_states = torch.tensor(np.stack(batch.next_state), dtype=torch.float32, device=self.device)
+            dones = torch.tensor(batch.done, dtype=torch.float32, device=self.device).unsqueeze(1)
 
-        q_vals = self.net(s_v).gather(1, a_v.unsqueeze(-1)).squeeze(-1)
-        with torch.no_grad():
-            q_next = self.target(ns_v).max(1)[0]
-            q_next[done_mask] = 0.0
-        expected = r_v + self.gamma * q_next
+            q_values = self.q(states).gather(1, actions)
+            with torch.no_grad():
+                q_next = self.q_target(next_states).max(1)[0].unsqueeze(1)
+                q_target = rewards + (1.0 - dones) * (self.gamma * q_next)
 
-        loss = nn.MSELoss()(q_vals, expected)
-        self.optim.zero_grad()
-        loss.backward()
-        self.optim.step()
+            loss = nn.functional.mse_loss(q_values, q_target)
+            self.optim.zero_grad()
+            loss.backward()
+            self.optim.step()
 
-        # decay eps
-        if self.eps > self.eps_min:
-            self.eps *= self.eps_decay
+            for p, p_target in zip(self.q.parameters(), self.q_target.parameters()):
+                p_target.data.copy_(self.tau * p.data + (1.0 - self.tau) * p_target.data)
 
-    def save(self, path):
-        torch.save({'net': self.net.state_dict(), 'target': self.target.state_dict()}, path)
-
-    def load(self, path):
-        d = torch.load(path, map_location=DEVICE)
-        self.net.load_state_dict(d['net'])
-        self.target.load_state_dict(d['target'])
+    def save(self, path=MODEL_PATH):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(self.q.state_dict(), path)
+    def load(self, path=MODEL_PATH):
+        self.q.load_state_dict(torch.load(path, map_location=self.device))
+        self.q_target.load_state_dict(self.q.state_dict())

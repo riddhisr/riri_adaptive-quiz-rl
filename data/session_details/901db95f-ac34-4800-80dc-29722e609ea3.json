@@ -1,0 +1,19 @@
+{
+  "session_id": "901db95f-ac34-4800-80dc-29722e609ea3",
+  "user_id": "You",
+  "start_time": "2025-11-02T03:50:46.240992",
+  "interactions": [
+    {
+      "ts": "2025-11-02T03:50:49.166376",
+      "q_no": 1,
+      "difficulty": "easy",
+      "question": "[Fallback] What is 2 + 2?",
+      "chosen": "3",
+      "correct": false,
+      "time_taken": 2.9049251079559326,
+      "reward": -0.6452462553977967,
+      "agent_type": "Random",
+      "model_name": ""
+    }
+  ]
+}

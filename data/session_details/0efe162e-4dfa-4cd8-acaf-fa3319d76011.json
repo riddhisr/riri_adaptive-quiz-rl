@@ -1,0 +1,19 @@
+{
+  "session_id": "0efe162e-4dfa-4cd8-acaf-fa3319d76011",
+  "user_id": "practice",
+  "start_time": "2025-11-01T18:12:20.496598",
+  "interactions": [
+    {
+      "ts": "2025-11-01T18:12:20.497863",
+      "q_no": 5,
+      "difficulty": "easy",
+      "question": "What is the correct order of operations for solving equations?",
+      "chosen": "Parentheses, Exponents, Multiplication, Division, Addition, Subtraction",
+      "correct": true,
+      "time_taken": 11.939012050628662,
+      "reward": 1.0,
+      "agent_type": "Practice",
+      "model_name": null
+    }
+  ]
+}

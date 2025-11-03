@@ -1,25 +1,3 @@
-# # experiments/eval_policy.py
-# from env.quiz_env import QuizEnv
-# from agents.dqn_agent import DQNAgent
-# import numpy as np
-
-# agent = DQNAgent()
-# agent.load('models/dqn.pth')
-# agent.eps = 0.0  # greedy
-# env = QuizEnv(max_q=10)
-# N = 200
-# rewards = []
-# for _ in range(N):
-#     s = env.reset()
-#     done = False
-#     tot = 0
-#     while not done:
-#         a = agent.select(s)
-#         s, r, done, _ = env.step(a)
-#         tot += r
-#     rewards.append(tot)
-# print('Eval reward mean/std:', np.mean(rewards), np.std(rewards))
-
 # experiments/eval_policy_detailed.py
 from env.quiz_env import QuizEnv
 from agents.dqn_agent import DQNAgent
